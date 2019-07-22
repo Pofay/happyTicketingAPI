@@ -1,4 +1,4 @@
-package com.cituojt.happyTicketingApi;
+package com.cituojt.happyTicketingApi.endToEnd;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
