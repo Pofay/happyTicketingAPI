@@ -34,7 +34,6 @@ build/
 application.properties
 application.dev.properties
 application.prod.properties
-auth0.properties
 
 
 
