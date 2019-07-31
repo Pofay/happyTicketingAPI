@@ -34,6 +34,8 @@ build/
 application.properties
 application.dev.properties
 application.prod.properties
+### Test specific properties
+secrets.properties
 
 
 
