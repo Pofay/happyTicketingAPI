@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 @TestPropertySource("classpath:secrets.properties")
 public class HappyTicketingApiApplicationTests {
 
@@ -47,8 +47,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Before
     public void setup() {
-
-        this.host = "http://localhost:8010";
+        this.host = String.format("http://localhost:8010");
 
         String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
                 .withClientSecret(clientSecret).withUsernameAndPassword("pofay@example.com", "!pofay123").build();
@@ -70,11 +69,8 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void getOnProjectsURLReturns200WhenAuthenticated() {
-
-        HttpStatus actual = this.template.getForEntity(host + "/api/v1/projects", Object.class).getStatusCode();
+        HttpStatus actual = this.template.getForEntity(this.host + "/api/v1/projects", String.class).getStatusCode();
 
         assertThat(actual, is(equalTo(HttpStatus.OK)));
-
     }
-
 }

@@ -40,7 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors();
         JwtWebSecurityConfigurer.forRS256(apiAudience, issuer).configure(http).authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/projects").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/projects").authenticated();
+                .antMatchers(HttpMethod.GET, "/api/v1/projects").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/projects").authenticated();
     }
 }
