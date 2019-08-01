@@ -2,6 +2,8 @@ package com.cituojt.happyTicketingApi.endToEnd;
 
 import java.util.Collections;
 
+import com.cituojt.happyTicketingApi.responses.ProjectsResponse;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -69,8 +72,11 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void getOnProjectsURLReturns200WhenAuthenticated() {
-        HttpStatus actual = this.template.getForEntity(this.host + "/api/v1/projects", String.class).getStatusCode();
+        ResponseEntity<ProjectsResponse> response = this.template.getForEntity(this.host + "/api/v1/projects",
+                ProjectsResponse.class);
 
-        assertThat(actual, is(equalTo(HttpStatus.OK)));
+        assertThat(response.getStatusCode(), is(equalTo(HttpStatus.OK)));
     }
+
+
 }

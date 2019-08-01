@@ -1,23 +1,25 @@
 package com.cituojt.happyTicketingApi.controllers;
 
+import com.cituojt.happyTicketingApi.responses.ProjectsResponse;
+
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @ComponentScan(basePackages = "happyTicketingApi.controllers")
 public class ProjectsController {
 
     @RequestMapping(value = "/api/v1/projects", produces = "application/json", method = RequestMethod.GET)
-    @ResponseBody
-    public String getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity<ProjectsResponse> getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
 
-        return "";
+        return ResponseEntity.ok(new ProjectsResponse(new ArrayList<>()));
     }
 
 }
