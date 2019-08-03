@@ -1,20 +1,24 @@
 package com.cituojt.happyTicketingApi.responses;
 
-import java.util.Collection;
+import java.util.List;
 
 public class ProjectsResponse {
 
-    private Collection<ProjectDTO> data;
+    private List<ProjectDTO> data;
 
     public ProjectsResponse() {
     }
 
-    public ProjectsResponse(Collection<ProjectDTO> projects) {
+    public ProjectsResponse(List<ProjectDTO> projects) {
         this.data = projects;
     }
 
-    public Collection<ProjectDTO> getProjects() {
+    public List<ProjectDTO> getProjects() {
         return data;
+    }
+
+    public void setProjects(List<ProjectDTO> projects) {
+        this.data = projects;
     }
 
 }

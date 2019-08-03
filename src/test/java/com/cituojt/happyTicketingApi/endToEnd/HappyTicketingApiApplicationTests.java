@@ -2,6 +2,8 @@ package com.cituojt.happyTicketingApi.endToEnd;
 
 import java.util.Collections;
 
+import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
+import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.responses.ProjectsResponse;
 
 import org.junit.After;
@@ -33,6 +35,13 @@ public class HappyTicketingApiApplicationTests {
 
     @Autowired
     private TestRestTemplate template;
+
+    @Autowired
+    private ProjectRepository projectRepo;
+
+    @Autowired
+    private UserRepository userRepo;
+
 
     @Value(value = "${auth0.apiAudience}")
     private String audience;
@@ -78,5 +87,13 @@ public class HappyTicketingApiApplicationTests {
         assertThat(response.getStatusCode(), is(equalTo(HttpStatus.OK)));
     }
 
+    @Test
+    public void withSavedProject_getReturnsCorrectResult() {
+        // Create JPA Model (Project, User)
+        // Populate fields
+        // Connect User to Project
+        // Save to repository
+
+    }
 
 }

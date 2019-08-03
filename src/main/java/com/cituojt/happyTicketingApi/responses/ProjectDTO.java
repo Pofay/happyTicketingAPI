@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public class ProjectDTO {
 
-    private int id;
+    private Long id;
     private Collection<UserDTO> members;
     private UserDTO owner;
     private Collection<TicketDTO> tickets;
@@ -12,7 +12,7 @@ public class ProjectDTO {
     public ProjectDTO() {
     }
 
-    public ProjectDTO(int id, Collection<UserDTO> members, UserDTO owner, Collection<TicketDTO> tickets) {
+    public ProjectDTO(Long id, Collection<UserDTO> members, UserDTO owner, Collection<TicketDTO> tickets) {
         this.id = id;
         this.members = members;
         this.owner = owner;
@@ -31,7 +31,7 @@ public class ProjectDTO {
         return members;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

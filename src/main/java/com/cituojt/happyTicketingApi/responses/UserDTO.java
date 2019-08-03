@@ -1,13 +1,13 @@
 package com.cituojt.happyTicketingApi.responses;
 
 public class UserDTO {
-    private int id;
+    private Long id;
     private String name;
 
     public UserDTO() {
     }
 
-    public UserDTO(int id, String name) {
+    public UserDTO(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -16,7 +16,7 @@ public class UserDTO {
         return name;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 

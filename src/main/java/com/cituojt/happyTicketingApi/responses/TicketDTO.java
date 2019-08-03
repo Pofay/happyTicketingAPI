@@ -1,22 +1,22 @@
 package com.cituojt.happyTicketingApi.responses;
 
 public class TicketDTO {
-    private int id;
+    private Long id;
     private String name;
-    private int assignedTo;
+    private Long assignedTo;
     private String status;
 
     public TicketDTO() {
     }
 
-    public TicketDTO(int id, String name, int assignedTo, String status) {
+    public TicketDTO(Long id, String name, Long assignedTo, String status) {
         this.id = id;
         this.name = name;
         this.assignedTo = assignedTo;
         this.status = status;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -24,7 +24,7 @@ public class TicketDTO {
         return name;
     }
 
-    public int getAssignedTo() {
+    public Long getAssignedTo() {
         return assignedTo;
     }
 
