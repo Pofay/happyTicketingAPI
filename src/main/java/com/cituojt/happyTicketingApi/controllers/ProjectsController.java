@@ -2,22 +2,23 @@ package com.cituojt.happyTicketingApi.controllers;
 
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
-import com.cituojt.happyTicketingApi.responses.ProjectDTO;
-import com.cituojt.happyTicketingApi.responses.ProjectsResponse;
-import com.cituojt.happyTicketingApi.responses.TicketDTO;
-import com.cituojt.happyTicketingApi.responses.UserDTO;
+import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
+import com.cituojt.happyTicketingApi.responses.projects.ProjectJSON;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,16 +35,14 @@ public class ProjectsController {
     }
 
     @RequestMapping(value = "/api/v1/projects", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<ProjectsResponse> getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity<IndexResponse> getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
 
-        UserDTO userDTO = new UserDTO("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        List<UserDTO> users = new ArrayList<>();
-        users.add(userDTO);
-        ProjectDTO projectDTO = new ProjectDTO(Long.valueOf(1), "ProjectM", users, new ArrayList<TicketDTO>());
-        List<ProjectDTO> projects = new ArrayList<>();
-        projects.add(projectDTO);
+        ProjectJSON payload = new ProjectJSON(Long.valueOf(1), "ProjectM", "/v1/projects",
+                Arrays.asList("GET", "POST"));
 
-        return ResponseEntity.ok(new ProjectsResponse(projects));
+        IndexResponse response = new IndexResponse(Arrays.asList(payload));
+
+        return ResponseEntity.ok(response);
     }
 
 }
