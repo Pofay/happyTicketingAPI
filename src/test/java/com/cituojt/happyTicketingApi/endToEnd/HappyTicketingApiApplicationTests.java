@@ -1,14 +1,19 @@
 package com.cituojt.happyTicketingApi.endToEnd;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
+import com.cituojt.happyTicketingApi.entities.Project;
+import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
-import com.cituojt.happyTicketingApi.responses.ProjectsResponse;
+import com.cituojt.happyTicketingApi.responses.*;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +47,6 @@ public class HappyTicketingApiApplicationTests {
     @Autowired
     private UserRepository userRepo;
 
-
     @Value(value = "${auth0.apiAudience}")
     private String audience;
 
@@ -74,6 +78,12 @@ public class HappyTicketingApiApplicationTests {
         }));
     }
 
+    @AfterEach
+    public void tearDown() {
+        userRepo.deleteAll();
+        projectRepo.deleteAll();
+    }
+
     @After
     public void teardown() {
         Unirest.shutDown();
@@ -90,10 +100,28 @@ public class HappyTicketingApiApplicationTests {
     @Test
     public void withSavedProject_getReturnsCorrectResult() {
         // Create JPA Model (Project, User)
-        // Populate fields
-        // Connect User to Project
-        // Save to repository
+        Project p = new Project("ProjectM");
+        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
+        // Connect User to Project
+        p.addMember(u, "OWNER");
+
+        // Save to repository
+        projectRepo.save(p);
+        userRepo.save(u);
+
+        // Response creation (Sooo verbose)
+        UserDTO userDTO = new UserDTO(u.getOAuthId(), u.getEmail());
+        List<UserDTO> users = new ArrayList<>();
+        users.add(userDTO);
+        ProjectDTO projectDTO = new ProjectDTO(Long.valueOf(1L), "ProjectM", users, new ArrayList<TicketDTO>());
+
+        ResponseEntity<ProjectsResponse> response = this.template.getForEntity(this.host + "/api/v1/projects",
+                ProjectsResponse.class);
+        ProjectsResponse actual = response.getBody();
+
+        assertThat(actual.getProjects().get(0).getName(), is(equalTo(projectDTO.getName())));
+        assertThat(actual.getProjects().size(), is(equalTo(1)));
     }
 
 }

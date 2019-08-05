@@ -1,5 +1,7 @@
 package com.cituojt.happyTicketingApi.responses;
 
+import java.util.Objects;
+
 public class TicketDTO {
     private Long id;
     private String name;
@@ -30,6 +32,24 @@ public class TicketDTO {
 
     public String getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        TicketDTO that = (TicketDTO) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(status, that.status)
+                && Objects.equals(assignedTo, that.assignedTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, status, name, assignedTo);
     }
 
 }
