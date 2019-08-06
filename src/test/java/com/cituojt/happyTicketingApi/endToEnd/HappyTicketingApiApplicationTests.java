@@ -134,7 +134,6 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
                 .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
                 .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())));
-
     }
 
 }

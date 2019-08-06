@@ -9,21 +9,19 @@ import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectJSON;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,24 +40,21 @@ public class ProjectsController {
     @RequestMapping(value = "/api/v1/projects", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<IndexResponse> getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String token = req.getHeader("Authorization").substring("Bearer ".length());
-        System.out.println(token);
         DecodedJWT jwt = JWT.decode(token);
         String subClaim = jwt.getClaim("sub").asString();
 
         User u = userRepo.findByOAuthId(subClaim);
 
+        return ResponseEntity.ok(constructResponse(u));
+    }
+
+    private IndexResponse constructResponse(User u) {
         Iterable<Project> projects = this.projectRepo.getProjectsForUser(u.getId());
-        List<ProjectJSON> jsonResponse = new ArrayList<>();
+        List<ProjectJSON> jsonResponse = StreamSupport.stream(projects.spliterator(), true)
+                .map(p -> new ProjectJSON(p.getId(), p.getName(), "/v1/projects", Arrays.asList("GET", "POST")))
+                .collect(Collectors.toList());
 
-        for (Project p : projects) {
-            ProjectJSON transformed = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
-                    Arrays.asList("GET", "POST"));
-            jsonResponse.add(transformed);
-        }
-
-        IndexResponse response = new IndexResponse(jsonResponse);
-
-        return ResponseEntity.ok(response);
+        return new IndexResponse(jsonResponse);
     }
 
 }
