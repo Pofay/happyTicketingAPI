@@ -30,6 +30,9 @@ import static org.hamcrest.Matchers.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Arrays;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -65,6 +68,9 @@ public class HappyTicketingApiApplicationTests {
 
     @Before
     public void setup() {
+        userRepo.deleteAll();
+        projectRepo.deleteAll();
+
         String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
                 .withClientSecret(clientSecret).withUsernameAndPassword("pofay@example.com", "!pofay123").build();
 
@@ -88,6 +94,10 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void getOnProjectsURLReturns200WhenAuthenticated() throws Exception {
+        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+
+        userRepo.save(u);
+
         mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk());
     }
@@ -104,7 +114,7 @@ public class HappyTicketingApiApplicationTests {
 
         mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken)).andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
-                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/1")));
+                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p.getId())));
     }
 
     @Test
@@ -116,14 +126,14 @@ public class HappyTicketingApiApplicationTests {
         p1.addMember(u, "OWNER");
         p2.addMember(u, "OWNER");
 
-        projectRepo.save(p2);
+        projectRepo.saveAll(Arrays.asList(p1, p2));
         userRepo.save(u);
 
         mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken)).andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
-                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/1")))
+                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
                 .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
-                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/2")));
+                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())));
 
     }
 

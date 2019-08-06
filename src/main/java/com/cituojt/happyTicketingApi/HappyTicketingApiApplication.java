@@ -29,6 +29,7 @@ public class HappyTicketingApiApplication {
     public CommandLineRunner demo(UserRepository userRepo, ProjectRepository projectRepo) {
 
         return (args) -> {
+            /*
             projectRepo.deleteAll();
             userRepo.deleteAll();
 
@@ -48,7 +49,7 @@ public class HappyTicketingApiApplication {
             for (Project pr : projects) {
                 System.out.println("Project Name: " + pr.getName());
                 System.out.println("Member Count: " + pr.getMembers().size());
-            }
+            }*/
 
         };
 
