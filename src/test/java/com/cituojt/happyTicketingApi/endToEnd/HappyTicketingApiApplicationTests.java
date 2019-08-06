@@ -94,21 +94,37 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void withSavedProject_getReturnsCorrectResult() throws Exception {
-        // Create JPA Model (Project, User)
         Project p = new Project("ProjectM");
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
-        // Connect User to Project
         p.addMember(u, "OWNER");
 
-        // Save to repository
         projectRepo.save(p);
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken))
-        .andDo(print())
+        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken)).andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/1")));
+    }
+
+    @Test
+    public void triangulateOnGet() throws Exception {
+        Project p1 = new Project("Customer Satisfaction");
+        Project p2 = new Project("Scrabble Trainer");
+        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+
+        p1.addMember(u, "OWNER");
+        p2.addMember(u, "OWNER");
+
+        projectRepo.save(p2);
+        userRepo.save(u);
+
+        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken)).andDo(print())
+                .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
+                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/1")))
+                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
+                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/2")));
+
     }
 
 }

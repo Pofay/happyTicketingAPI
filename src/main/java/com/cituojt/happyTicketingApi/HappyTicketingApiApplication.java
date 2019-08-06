@@ -1,5 +1,8 @@
 package com.cituojt.happyTicketingApi;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.ProjectMember;
 import com.cituojt.happyTicketingApi.entities.ProjectMemberId;
@@ -30,21 +33,23 @@ public class HappyTicketingApiApplication {
             userRepo.deleteAll();
 
             User u = new User("pofay@example.com", "auth0|123");
+            User u2 = new User("pofire@example.com", "auth0|123");
 
             Project p = new Project("Watsup");
+            Project p2 = new Project("Cool Whip");
             p.addMember(u, "OWNER");
+            p2.addMember(u2, "OWNER");
 
-            projectRepo.save(p);
-            userRepo.save(u);
+            projectRepo.saveAll(Arrays.asList(p, p2));
+            userRepo.saveAll(Arrays.asList(u, u2));
 
-            Iterable<Project> projects = projectRepo.findAll();
+            Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
+
             for (Project pr : projects) {
-                System.out.println(String.format("%s, %d", pr.getName(), pr.getId()));
-                for (ProjectMember member : pr.getMembers()) {
-                    User us = member.getUser();
-                    System.out.println(String.format("%s, %s, %s", us.getEmail(), us.getOAuthId(), member.getRole()));
-                }
+                System.out.println("Project Name: " + pr.getName());
+                System.out.println("Member Count: " + pr.getMembers().size());
             }
+
         };
 
     }
