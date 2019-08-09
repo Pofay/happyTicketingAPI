@@ -155,6 +155,11 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
     }
 
+    @Test
+    public void getForUnconnectedProjectReturns403WithReason() {
+
+    }
+
 
 
 }

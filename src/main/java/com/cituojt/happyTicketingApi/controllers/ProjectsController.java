@@ -52,7 +52,7 @@ public class ProjectsController {
 
     @RequestMapping(value = "/api/v1/projects/{id}", produces = "application/json",
             method = RequestMethod.GET)
-    public ResponseEntity<ProjectDetailsJSON> getProjectForUserById(@PathVariable("id") long id,
+    public ResponseEntity getProjectForUserById(@PathVariable("id") long id,
             HttpServletRequest req, HttpServletResponse res) throws Exception {
 
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
@@ -64,7 +64,7 @@ public class ProjectsController {
 
             return ResponseEntity.ok(payload);
         } else
-            throw new Exception();
+            return ResponseEntity.notFound().build();
     }
 
     private IndexResponse constructResponse(User u) {
