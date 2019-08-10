@@ -39,7 +39,7 @@ public class ProjectsController {
 
     @RequestMapping(value = "/api/v1/projects", produces = "application/json",
             method = RequestMethod.GET)
-    public ResponseEntity<IndexResponse> getProjectsForUser(HttpServletRequest req,
+    public ResponseEntity getProjectsForUser(HttpServletRequest req,
             HttpServletResponse res) {
         String token = req.getHeader("Authorization").substring("Bearer ".length());
         DecodedJWT jwt = JWT.decode(token);

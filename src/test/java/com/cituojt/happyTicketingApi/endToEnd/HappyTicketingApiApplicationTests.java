@@ -4,18 +4,14 @@ import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,13 +20,12 @@ import org.springframework.web.context.WebApplicationContext;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import java.util.Arrays;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @RunWith(SpringRunner.class)
@@ -58,7 +53,7 @@ public class HappyTicketingApiApplicationTests {
 
     private MockMvc mvc;
 
-    private String accessToken;
+    private String bearerToken;
 
     @Autowired
     private WebApplicationContext context;
@@ -74,21 +69,18 @@ public class HappyTicketingApiApplicationTests {
 
         HttpResponse<JsonNode> response = Unirest.post(String.format("%soauth/token", issuer))
                 .header("content-type", "application/x-www-form-urlencoded").body(body).asJson();
-        this.accessToken = response.getBody().getObject().getString("access_token");
+        this.bearerToken = String.format("Bearer %s",
+                response.getBody().getObject().getString("access_token"));
 
-        mvc = MockMvcBuilders.webAppContextSetup(context)
-                .apply(SecurityMockMvcConfigurers.springSecurity()).build();
-    }
-
-    @AfterEach
-    public void tearDown() {
-        userRepo.deleteAll();
-        projectRepo.deleteAll();
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
 
     @After
     public void teardown() {
         Unirest.shutDown();
+        userRepo.deleteAll();
+        projectRepo.deleteAll();
+
     }
 
     @Test
@@ -97,7 +89,7 @@ public class HappyTicketingApiApplicationTests {
 
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andExpect(status().isOk());
     }
 
@@ -111,7 +103,7 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.save(p);
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andDo(print()).andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p.getId())));
     }
@@ -128,7 +120,7 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.saveAll(Arrays.asList(p1, p2));
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", "Bearer " + accessToken))
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
@@ -148,8 +140,8 @@ public class HappyTicketingApiApplicationTests {
 
         int expectedId = Integer.parseInt(p.getId().toString());
 
-        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization",
-                "Bearer " + accessToken)).andDo(print()).andExpect(status().isOk())
+        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
+                .andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(p.getName())))
                 .andExpect(jsonPath("$.id", equalTo(expectedId)))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
