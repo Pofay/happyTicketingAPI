@@ -9,6 +9,8 @@ import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectJSON;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -91,10 +93,12 @@ public class ProjectsController {
 
         private IndexResponse constructResponse(User u) {
                 Iterable<Project> projects = this.projectRepo.getProjectsForUser(u.getId());
-                List<ProjectJSON> jsonResponse = StreamSupport
-                                .stream(projects.spliterator(), true).map(p -> new ProjectJSON(p.getId(), p.getName(),
-                                                "/v1/projects", Arrays.asList("GET", "POST")))
-                                .collect(Collectors.toList());
+                List<ProjectJSON> jsonResponse = new ArrayList<>();
+                for (Project p : projects) {
+                        ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
+                                        Arrays.asList("GET", "POST"));
+                        jsonResponse.add(json);
+                }
 
                 return new IndexResponse(jsonResponse);
         }
