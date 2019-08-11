@@ -143,16 +143,24 @@ public class HappyTicketingApiApplicationTests {
     public void postWithBodyReturnsCorrectResult() throws Exception {
         String projectName = "ProjectM";
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        
+
         userRepo.save(u);
 
         int userId = Integer.parseInt(u.getId().toString());
 
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken).param("name", projectName))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is(projectName)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.name", is(projectName)))
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())))
                 .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
+    }
+
+    @Test
+    public void postWithEmptyNameReturns400WithErrorMessage() throws Exception {
+        String projectName = "";
+        String errorMessage = "name cannot be empty";
+
+        mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken).param("name", projectName))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error", is(errorMessage)));
     }
 }

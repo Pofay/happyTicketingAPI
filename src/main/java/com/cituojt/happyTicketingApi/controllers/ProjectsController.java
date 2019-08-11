@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.ResponseEntity;
@@ -66,6 +68,13 @@ public class ProjectsController {
         @RequestMapping(value = "/api/v1/projects", produces = "application/json", method = RequestMethod.POST)
         public ResponseEntity createProject(@RequestParam("name") String name, HttpServletRequest req,
                         HttpServletResponse res) {
+
+                if (name.isEmpty()) {
+                        JSONObject payload = new JSONObject();
+                        payload.put("error", "name cannot be empty");
+                        return ResponseEntity.status(400).body(payload.toString());
+                }
+
                 String oauthId = getOauthIdFromRequest(req);
 
                 User u = userRepo.findByOAuthId(oauthId);
