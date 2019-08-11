@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -30,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@TestPropertySource("classpath:secrets.properties")
 public class HappyTicketingApiApplicationTests {
 
     @Autowired
@@ -80,7 +78,6 @@ public class HappyTicketingApiApplicationTests {
         Unirest.shutDown();
         userRepo.deleteAll();
         projectRepo.deleteAll();
-
     }
 
     @Test
@@ -140,8 +137,8 @@ public class HappyTicketingApiApplicationTests {
 
         int expectedId = Integer.parseInt(p.getId().toString());
 
-        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
-                .andDo(print()).andExpect(status().isOk())
+        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization",
+                this.bearerToken)).andDo(print()).andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", equalTo(p.getName())))
                 .andExpect(jsonPath("$.id", equalTo(expectedId)))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
