@@ -18,12 +18,12 @@ jobs: # a collection of steps
       - run:
           name: Generate Application Properties for Application
           command: |
-            cd happyTicketingAPI/src/main/resources
+            cd ~/happyTicketingAPI/src/main/resources
             echo -e "spring.jpa.hibernate.ddl-auto=create\nspring.datasource.url = jdbc:mysql://localhost:3306/happyTicketingDB?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true\nspring.datasource.username=pofay\nspring.datasource.password=\nspring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect\nspring.jpa.show-sql=false\nserver.port=8010" >> application.properties
       - run:
           name: Generate Test properties for endpoint tests
           command: |
-            cd happyTicketingAPI/src/test/resources
+            cd ~/happyTicketingAPI/src/test/resources
             echo -e "spring.jpa.hibernate.ddl-auto=create\nspring.datasource.url = jdbc:mysql://localhost:3306/happyTicketingDBTest?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true\nspring.datasource.username=pofay\nspring.datasource.password=\nspring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect\nspring.jpa.show-sql=false\nserver.port=8010\nauth0.clientId=$CLIENT_ID\nauth0.clientSecret=$CLIENT_SECRET" >> application.properties
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
