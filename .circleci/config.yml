@@ -2,18 +2,7 @@ version: 2 # use CircleCI 2.0
 jobs: # a collection of steps
   build: # runs not using Workflows must have a `build` job as entry point
 
-    working_directory: ~/happyTicketingAPI # directory where steps will run
-    environment:
-      - auth0.clientId: $CLIENT_ID
-      - auth0.clientSecret: $CLIENT_SECRET
-      - spring.jpa.hibernate.ddl-auto: create-drop
-      - spring.datasource.url: jdbc:mysql://localhost:3306/happyTicketingDBTest?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
-      - spring.datasource.username: pofay
-      - spring.datasource.password:
-      - spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
-      - spring.jpa.show-sql: false
-      - server.port: 8010
-
+    # working_directory: ~/happyTicketingAPI # directory where steps will run
 
     docker: # run the steps with Docker
       - image: circleci/openjdk:11.0.3-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
@@ -26,6 +15,16 @@ jobs: # a collection of steps
     steps: # a collection of executable commands
 
       - checkout # check out source code to working directory
+      - run:
+          name: Generate Application Properties for Application
+          command: |
+            cd happyTicketingAPI/src/main/resources
+            echo -e "spring.jpa.hibernate.ddl-auto=create\nspring.datasource.url = jdbc:mysql://localhost:3306/happyTicketingDB?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true\nspring.datasource.username=pofay\nspring.datasource.password=\nspring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect\nspring.jpa.show-sql=false\nserver.port=8010" >> application.properties
+      - run:
+          name: Generate Test properties for endpoint tests
+          command: |
+            cd happyTicketingAPI/src/test/resources
+            echo -e "spring.jpa.hibernate.ddl-auto=create\nspring.datasource.url = jdbc:mysql://localhost:3306/happyTicketingDBTest?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true\nspring.datasource.username=pofay\nspring.datasource.password=\nspring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL5Dialect\nspring.jpa.show-sql=false\nserver.port=8010\nauth0.clientId=$CLIENT_ID\nauth0.clientSecret=$CLIENT_SECRET" >> application.properties
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
