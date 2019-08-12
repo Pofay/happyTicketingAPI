@@ -1,4 +1,7 @@
 # happyTicketingAPI
+
+Build Status: [![CircleCI](https://circleci.com/gh/Pofay/happyTicketingAPI.svg?style=svg)](https://circleci.com/gh/Pofay/happyTicketingAPI)
+
 A :smile: RESTful backend for a Ticketing System
 
 ## Development
