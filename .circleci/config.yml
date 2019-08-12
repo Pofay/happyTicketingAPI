@@ -2,15 +2,26 @@ version: 2 # use CircleCI 2.0
 jobs: # a collection of steps
   build: # runs not using Workflows must have a `build` job as entry point
 
-    working_directory: ~/circleci-demo-java-spring # directory where steps will run
+    working_directory: ~/happyTicketingAPI # directory where steps will run
+    environment:
+      - auth0.clientId: $CLIENT_ID
+      - auth0.clientSecret: $CLIENT_SECRET
+      - spring.jpa.hibernate.ddl-auto: create-drop
+      - spring.datasource.url: jdbc:mysql://localhost:3306/happyTicketingDBTest?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+      - spring.datasource.username: pofay
+      - spring.datasource.password:
+      - spring.jpa.properties.hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+      - spring.jpa.show-sql: false
+      - server.port: 8010
+
 
     docker: # run the steps with Docker
       - image: circleci/openjdk:11.0.3-jdk-stretch # ...with this image as the primary container; this is where all `steps` will run
       - image: circleci/mariadb:10.3.4-ram
         environment:
           - MYSQL_DATABASE: happyTicketingDBTest
-          - MYSQL_USER: mariadb
-          - MYSQL_PASSWORD: pwd
+          - MYSQL_USER: pofay
+          - MYSQL_PASSWORD:
 
     steps: # a collection of executable commands
 
@@ -27,7 +38,7 @@ jobs: # a collection of steps
             - ~/.m2
           key: circleci-demo-java-spring-{{ checksum "pom.xml" }}
 
-      - run: mvn -auth0.clientId=$CLIENT_ID -auth0.secret=$CLIENT_SECRET package # run the actual tests
+      - run: mvn package
 
       - store_test_results: # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard.
       # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
