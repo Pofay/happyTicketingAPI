@@ -2,7 +2,6 @@ package com.cituojt.happyTicketingApi.entities;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,7 +20,8 @@ public class Project {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<ProjectMember> members = new ArrayList<>();
 
     public Project() {

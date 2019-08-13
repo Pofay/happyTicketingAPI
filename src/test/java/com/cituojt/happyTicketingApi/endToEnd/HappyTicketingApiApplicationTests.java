@@ -62,11 +62,13 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.deleteAll();
 
         String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
-                .withClientSecret(clientSecret).withUsernameAndPassword("pofay@example.com", "!pofay123").build();
+                .withClientSecret(clientSecret)
+                .withUsernameAndPassword("pofay@example.com", "!pofay123").build();
 
         HttpResponse<JsonNode> response = Unirest.post(String.format("%soauth/token", issuer))
                 .header("content-type", "application/x-www-form-urlencoded").body(body).asJson();
-        this.bearerToken = String.format("Bearer %s", response.getBody().getObject().getString("access_token"));
+        this.bearerToken = String.format("Bearer %s",
+                response.getBody().getObject().getString("access_token"));
 
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
@@ -84,7 +86,8 @@ public class HappyTicketingApiApplicationTests {
 
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -97,8 +100,8 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.save(p);
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andDo(print())
-                .andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
+                .andDo(print()).andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p.getId())));
     }
 
@@ -114,7 +117,8 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.saveAll(Arrays.asList(p1, p2));
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andDo(print())
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
+                .andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
                 .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
@@ -133,8 +137,9 @@ public class HappyTicketingApiApplicationTests {
 
         int expectedId = Integer.parseInt(p.getId().toString());
 
-        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken)).andDo(print())
-                .andExpect(status().isOk()).andExpect(jsonPath("$.name", equalTo(p.getName())))
+        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo(p.getName())))
                 .andExpect(jsonPath("$.id", equalTo(expectedId)))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
     }
@@ -148,8 +153,9 @@ public class HappyTicketingApiApplicationTests {
 
         int userId = Integer.parseInt(u.getId().toString());
 
-        mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken).param("name", projectName))
-                .andExpect(status().isCreated()).andExpect(jsonPath("$.name", is(projectName)))
+        mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
+                .param("name", projectName)).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name", is(projectName)))
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())))
                 .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
@@ -160,7 +166,8 @@ public class HappyTicketingApiApplicationTests {
         String projectName = "";
         String errorMessage = "name cannot be empty";
 
-        mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken).param("name", projectName))
-                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.error", is(errorMessage)));
+        mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
+                .param("name", projectName)).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is(errorMessage)));
     }
 }
