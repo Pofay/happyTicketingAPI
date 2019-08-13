@@ -57,7 +57,8 @@ public class Auth0RequestBuilder {
 
         return String.format(
                 "grant_type=password&username=%s&password=%s&audience=%s&client_id=%s&client_secret=%s&scopes=%s",
-                this.username, this.password, this.apiAudience, this.clientId, this.clientSecret, parsedScopes);
+                this.username, this.password, this.apiAudience, this.clientId, this.clientSecret,
+                parsedScopes);
 
     }
 
