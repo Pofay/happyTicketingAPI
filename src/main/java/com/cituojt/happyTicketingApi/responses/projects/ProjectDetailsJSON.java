@@ -1,7 +1,7 @@
 package com.cituojt.happyTicketingApi.responses.projects;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import com.cituojt.happyTicketingApi.entities.ProjectMember;
 
 public class ProjectDetailsJSON {
@@ -17,8 +17,12 @@ public class ProjectDetailsJSON {
     }
 
     private List<UserJSON> processMembers(List<ProjectMember> members) {
-        return members.stream().map(m -> new UserJSON(m.getUser().getId(), m.getUser().getEmail()))
-                .collect(Collectors.toList());
+        List<UserJSON> membersJSON = new ArrayList<>();
+        for (ProjectMember m : members) {
+            UserJSON userJSON = new UserJSON(m.getUser().getId(), m.getUser().getEmail());
+            membersJSON.add(userJSON);
+        }
+        return membersJSON;
     }
 
     public List<UserJSON> getMembers() {
@@ -40,5 +44,4 @@ public class ProjectDetailsJSON {
     public void setId(Long id) {
         this.id = id;
     }
-
 }
