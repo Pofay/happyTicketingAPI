@@ -41,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors();
         JwtWebSecurityConfigurer.forRS256(apiAudience, issuer).configure(http).authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/api/v1/projects").authenticated()
-                .antMatchers(HttpMethod.POST, "/api/v1/projects").authenticated();
+                .antMatchers(HttpMethod.POST, "/api/v1/projects").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/v1/projects/{id}/tasks").authenticated();
     }
 }

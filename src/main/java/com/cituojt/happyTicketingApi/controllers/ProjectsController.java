@@ -56,7 +56,7 @@ public class ProjectsController {
         if (projectOrNull.isPresent()) {
             Project project = projectOrNull.get();
             ProjectDetailsJSON payload = new ProjectDetailsJSON(project.getId(), project.getName(),
-                    project.getMembers());
+                    project.getMembers(), project.getTasks());
 
             return ResponseEntity.ok(payload);
         } else
@@ -83,9 +83,34 @@ public class ProjectsController {
 
         projectRepo.save(p);
 
-        ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers());
+        ProjectDetailsJSON payload =
+                new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
 
         return ResponseEntity.status(201).body(payload);
+    }
+
+    @RequestMapping(value = "/api/v1/projects/{id}/tasks", method = RequestMethod.POST)
+    public ResponseEntity addTaskToProject(@PathVariable("id") long id,
+            @RequestParam("name") String name, HttpServletRequest req, HttpServletResponse res) {
+
+        String oauthId = getOauthIdFromRequest(req);
+
+        User u = userRepo.findByOAuthId(oauthId);
+        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+
+        if (projectOrNull.isPresent()) {
+            Project p = projectOrNull.get();
+            p.addTask(name, u.getEmail(), "TO IMPLEMENT");
+
+            projectRepo.save(p);
+
+            ProjectDetailsJSON payload =
+                    new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
+
+            return ResponseEntity.status(201).body(payload);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     private IndexResponse constructResponse(User u) {

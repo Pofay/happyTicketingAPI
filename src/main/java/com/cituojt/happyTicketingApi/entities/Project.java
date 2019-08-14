@@ -1,7 +1,7 @@
 package com.cituojt.happyTicketingApi.entities;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -22,7 +22,11 @@ public class Project {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
             orphanRemoval = true)
-    private List<ProjectMember> members = new ArrayList<>();
+    private Set<ProjectMember> members = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private Set<Task> tasks = new HashSet<>();
 
     public Project() {
     }
@@ -43,8 +47,12 @@ public class Project {
         this.name = name;
     }
 
-    public List<ProjectMember> getMembers() {
+    public Set<ProjectMember> getMembers() {
         return members;
+    }
+
+    public Set<Task> getTasks() {
+        return tasks;
     }
 
     public void addMember(User user, String role) {
@@ -52,6 +60,10 @@ public class Project {
         members.add(m);
     }
 
+    public void addTask(String name, String email, String status) {
+        Task t = new Task(name, email, status);
+        tasks.add(t);
+        t.setProject(this);
+    }
     // Add removal option
-
 }
