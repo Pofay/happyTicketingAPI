@@ -170,4 +170,23 @@ public class HappyTicketingApiApplicationTests {
                 .param("name", projectName)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is(errorMessage)));
     }
+
+    @Test
+    public void postToTaskForProjectReturns201() throws Exception {
+        Project p = new Project("Hotel Management");
+        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        p.addMember(u, "OWNER");
+        projectRepo.save(p);
+        userRepo.save(u);
+
+        String taskName = "MakeDB";
+
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks")
+                .header("Authorization", this.bearerToken).param("name", taskName))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
+                .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
+                .andExpect(jsonPath("$.tasks[:1].status", hasItem("TO IMPLEMENT")))
+                .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
+    }
 }
