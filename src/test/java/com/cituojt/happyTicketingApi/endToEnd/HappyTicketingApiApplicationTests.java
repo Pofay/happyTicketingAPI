@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -19,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import net.minidev.json.JSONObject;
 import java.util.Arrays;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.hamcrest.Matchers.*;
@@ -153,9 +155,13 @@ public class HappyTicketingApiApplicationTests {
 
         int userId = Integer.parseInt(u.getId().toString());
 
+        JSONObject payload = new JSONObject();
+        payload.put("name", projectName);
+
+
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
-                .param("name", projectName)).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is(projectName)))
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.name", is(projectName)))
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())))
                 .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
@@ -166,8 +172,13 @@ public class HappyTicketingApiApplicationTests {
         String projectName = "";
         String errorMessage = "name cannot be empty";
 
+
+        JSONObject payload = new JSONObject();
+        payload.put("name", projectName);
+
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
-                .param("name", projectName)).andExpect(status().isBadRequest())
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
+                .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is(errorMessage)));
     }
 
@@ -180,10 +191,12 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         String taskName = "MakeDB";
+        JSONObject payload = new JSONObject();
+        payload.put("name", taskName);
 
         mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks")
-                .header("Authorization", this.bearerToken).param("name", taskName))
-                .andExpect(status().isCreated())
+                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
+                .content(payload.toString())).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem("TO IMPLEMENT")))

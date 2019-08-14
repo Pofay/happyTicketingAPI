@@ -6,6 +6,8 @@ import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
+import com.cituojt.happyTicketingApi.requests.CreateProjectRequest;
+import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectJSON;
@@ -19,6 +21,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,10 +68,10 @@ public class ProjectsController {
 
     @RequestMapping(value = "/api/v1/projects", produces = "application/json",
             method = RequestMethod.POST)
-    public ResponseEntity createProject(@RequestParam("name") String name, HttpServletRequest req,
-            HttpServletResponse res) {
+    public ResponseEntity createProject(@RequestBody CreateProjectRequest body,
+            HttpServletRequest req, HttpServletResponse res) {
 
-        if (name.isEmpty()) {
+        if (body.getName().isEmpty()) {
             JSONObject payload = new JSONObject();
             payload.put("error", "name cannot be empty");
             return ResponseEntity.status(400).body(payload.toString());
@@ -78,7 +81,7 @@ public class ProjectsController {
 
         User u = userRepo.findByOAuthId(oauthId);
 
-        Project p = new Project(name);
+        Project p = new Project(body.getName());
         p.addMember(u, "OWNER");
 
         projectRepo.save(p);
@@ -91,7 +94,7 @@ public class ProjectsController {
 
     @RequestMapping(value = "/api/v1/projects/{id}/tasks", method = RequestMethod.POST)
     public ResponseEntity addTaskToProject(@PathVariable("id") long id,
-            @RequestParam("name") String name, HttpServletRequest req, HttpServletResponse res) {
+            @RequestBody CreateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
 
         String oauthId = getOauthIdFromRequest(req);
 
@@ -100,7 +103,7 @@ public class ProjectsController {
 
         if (projectOrNull.isPresent()) {
             Project p = projectOrNull.get();
-            p.addTask(name, u.getEmail(), "TO IMPLEMENT");
+            p.addTask(body.getName(), u.getEmail(), "TO IMPLEMENT");
 
             projectRepo.save(p);
 
