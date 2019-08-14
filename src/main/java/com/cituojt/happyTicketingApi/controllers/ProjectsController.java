@@ -95,7 +95,7 @@ public class ProjectsController {
     @RequestMapping(value = "/api/v1/projects/{id}/tasks", method = RequestMethod.POST)
     public ResponseEntity addTaskToProject(@PathVariable("id") long id,
             @RequestBody CreateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
-
+ 
         String oauthId = getOauthIdFromRequest(req);
 
         User u = userRepo.findByOAuthId(oauthId);
@@ -103,7 +103,9 @@ public class ProjectsController {
 
         if (projectOrNull.isPresent()) {
             Project p = projectOrNull.get();
+
             p.addTask(body.getName(), u.getEmail(), "TO IMPLEMENT");
+
 
             projectRepo.save(p);
 
