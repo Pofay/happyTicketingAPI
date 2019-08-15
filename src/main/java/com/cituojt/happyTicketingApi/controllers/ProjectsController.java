@@ -43,9 +43,17 @@ public class ProjectsController {
     public ResponseEntity getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String oauthId = getOauthIdFromRequest(req);
 
-        User u = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
 
-        return ResponseEntity.ok(constructResponse(u));
+        if (userOrNull.isPresent()) {
+            User u = userOrNull.get();
+            return ResponseEntity.ok(constructResponse(u));
+        } else {
+            JSONObject errorPayload = new JSONObject();
+            errorPayload.put("error", "access_token user is not yet registered or doesn't exist.");
+            return ResponseEntity.status(403).body(errorPayload.toString());
+        }
+
     }
 
     @GetMapping(value = "/api/v1/projects/{id}", produces = "application/json")
@@ -76,17 +84,24 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        User u = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
 
-        Project p = new Project(body.getName());
-        p.addMember(u, "OWNER");
+        if (userOrNull.isPresent()) {
+            User u = userOrNull.get();
+            Project p = new Project(body.getName());
+            p.addMember(u, "OWNER");
 
-        projectRepo.save(p);
+            projectRepo.save(p);
 
-        ProjectDetailsJSON payload =
-                new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
+            ProjectDetailsJSON payload =
+                    new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
 
-        return ResponseEntity.status(201).body(payload);
+            return ResponseEntity.status(201).body(payload);
+        }
+
+        else {
+            return ResponseEntity.status(404).build();
+        }
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
@@ -95,14 +110,14 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        User u = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
-        if (projectOrNull.isPresent()) {
+        if (projectOrNull.isPresent() && userOrNull.isPresent()) {
+            User u = userOrNull.get();
             Project p = projectOrNull.get();
 
             p.addTask(body.getName(), u.getEmail(), "TO IMPLEMENT");
-
 
             projectRepo.save(p);
 

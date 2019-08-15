@@ -93,6 +93,15 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
+    public void getOnProjects_shouldReturnAnErrorWhenUserIsNotFound() throws Exception {
+        String errorMessage = "access_token user is not yet registered or doesn't exist.";
+
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error", is(equalTo(errorMessage))));
+    }
+
+    @Test
     public void withSavedProject_getReturnsCorrectResult() throws Exception {
         Project p = new Project("ProjectM");
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
