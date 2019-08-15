@@ -18,16 +18,13 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.catalina.connector.Response;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,8 +39,7 @@ public class ProjectsController {
         this.projectRepo = projectRepo;
     }
 
-    @RequestMapping(value = "/api/v1/projects", produces = "application/json",
-            method = RequestMethod.GET)
+    @GetMapping(value = "/api/v1/projects", produces = "application/json")
     public ResponseEntity getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String oauthId = getOauthIdFromRequest(req);
 
@@ -52,8 +48,7 @@ public class ProjectsController {
         return ResponseEntity.ok(constructResponse(u));
     }
 
-    @RequestMapping(value = "/api/v1/projects/{id}", produces = "application/json",
-            method = RequestMethod.GET)
+    @GetMapping(value = "/api/v1/projects/{id}", produces = "application/json")
     public ResponseEntity getProjectForUserById(@PathVariable("id") long id, HttpServletRequest req,
             HttpServletResponse res) throws Exception {
 
@@ -69,8 +64,7 @@ public class ProjectsController {
             return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(value = "/api/v1/projects", produces = "application/json",
-            method = RequestMethod.POST)
+    @PostMapping(value = "/api/v1/projects", produces = "application/json")
     public ResponseEntity createProject(@RequestBody CreateProjectRequest body,
             HttpServletRequest req, HttpServletResponse res) {
 
@@ -95,10 +89,10 @@ public class ProjectsController {
         return ResponseEntity.status(201).body(payload);
     }
 
-    @RequestMapping(value = "/api/v1/projects/{id}/tasks", method = RequestMethod.POST)
+    @PostMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
     public ResponseEntity addTaskToProject(@PathVariable("id") long id,
             @RequestBody CreateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
- 
+
         String oauthId = getOauthIdFromRequest(req);
 
         User u = userRepo.findByOAuthId(oauthId);
