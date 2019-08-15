@@ -203,4 +203,41 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem("TO IMPLEMENT")))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
+
+    @Test
+    public void withFoundEmail_addingGroupMembersToProjectReturns201WithMembersFieldChanged()
+            throws Exception {
+        Project p = new Project("Hotel Management");
+        User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        User u2 = new User("pofire@example.com", "auth0|123456");
+        p.addMember(u1, "OWNER");
+        projectRepo.save(p);
+        userRepo.saveAll(Arrays.asList(u1, u2));
+
+        JSONObject payload = new JSONObject();
+        payload.put("memberEmail", u2.getEmail());
+
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members")
+                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
+                .content(payload.toString())).andExpect(status().isCreated())
+                .andExpect(jsonPath("$.members[:2].email", hasItem(u2.getEmail())));
+    }
+
+    @Test
+    public void withNoMatchingEmail_addingMembersToProjectReturns403WithErrorMessage()
+            throws Exception {
+        Project p = new Project("Hotel Management");
+        User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        p.addMember(u1, "OWNER");
+        projectRepo.save(p);
+        userRepo.save(u1);
+
+        JSONObject payload = new JSONObject();
+        payload.put("memberEmail", "notExisting@example.com");
+
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members")
+                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
+                .content(payload.toString())).andExpect(status().isForbidden()).andExpect(
+                        jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
+    }
 }
