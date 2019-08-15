@@ -191,6 +191,7 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         String taskName = "MakeDB";
+
         JSONObject payload = new JSONObject();
         payload.put("name", taskName);
 
