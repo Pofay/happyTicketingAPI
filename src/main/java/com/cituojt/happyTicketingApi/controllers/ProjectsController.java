@@ -6,6 +6,7 @@ import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
+import com.cituojt.happyTicketingApi.requests.AddMemberRequest;
 import com.cituojt.happyTicketingApi.requests.CreateProjectRequest;
 import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
@@ -17,10 +18,12 @@ import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.catalina.connector.Response;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -113,6 +116,36 @@ public class ProjectsController {
             return ResponseEntity.status(201).body(payload);
         } else {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping(value = "/api/v1/projects/{id}/members", produces = "application/json")
+    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body,
+            @PathVariable("id") long id, HttpServletRequest req, HttpServletResponse res) {
+
+        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+
+        if (projectOrNull.isPresent()) {
+            Project p = projectOrNull.get();
+            Optional<User> userOrNull = userRepo.findByEmail(body.getMemberEmail());
+            if (userOrNull.isPresent()) {
+                User u = userOrNull.get();
+                p.addMember(u, "MEMBER");
+
+                projectRepo.save(p);
+
+                ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
+                        p.getMembers(), p.getTasks());
+
+                return ResponseEntity.status(201).body(payload);
+            } else {
+                JSONObject errorPayload = new JSONObject();
+                errorPayload.put("error", "email is not yet registered to system.");
+                return ResponseEntity.status(403).body(errorPayload.toString());
+            }
+
+        } else {
+            return ResponseEntity.status(400).build();
         }
     }
 
