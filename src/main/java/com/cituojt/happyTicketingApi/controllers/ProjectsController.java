@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.qos.logback.core.joran.conditional.ElseAction;
-
 @RestController
 public class ProjectsController {
 
@@ -180,33 +178,20 @@ public class ProjectsController {
 
             Set<Task> tasks = p.getTasks();
             // check if task is in the project
-            for (Task k : tasks) {
-                if (k.getId() == body.getId()) {
+            for (Task t : tasks) {
+                if (t.getId() == body.getId()) {
 
-                    Optional<Task> taskOrNull = p.getTaskbyTaskId(body.getId());
+                    t.setName(body.getName());
+                    t.setAssignedTo(body.getAssignedTo());
+                    t.setStatus(body.getStatus());
+                    // save project which also hopefully saves the task changes
+                    projectRepo.save(p);
 
-                    if (projectOrNull.isPresent()) {
-
-                        Task t = taskOrNull.get();
-
-                        if (!body.getName().isEmpty())
-                            t.setName(body.getName());
-                        if (!body.getAssignedTo().isEmpty())
-                            t.setAssignedTo(body.getAssignedTo());
-                        if (!body.getStatus().isEmpty())
-                            t.setStatus(body.getStatus());
-                        // save project which also hopefully saves the task changes
-                        projectRepo.save(p);
-
-                        TaskJSON payload = new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
-                        return ResponseEntity.status(200).body(payload);
-                    }
-                } else {
-                    return ResponseEntity.status(404).body("Task Not Found In Project!");
+                    TaskJSON payload = new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+                    return ResponseEntity.status(200).body(payload);
                 }
-
             }
-
+            return ResponseEntity.status(404).body("Task Not Found In Project!");
         }
         return ResponseEntity.status(404).build();
     }
