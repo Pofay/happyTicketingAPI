@@ -1,6 +1,7 @@
 package com.cituojt.happyTicketingApi.entities;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -65,5 +66,20 @@ public class Project {
         tasks.add(t);
         t.setProject(this);
     }
+
+    public void addTask(Task t) {
+        tasks.add(t);
+        t.setProject(this);
+    }
     // Add removal option
+
+
+    //get Task by ID
+    public Optional<Task> getTaskbyTaskId(Long id){
+        for(Task k:tasks){
+            if(k.getId()==id)
+                return Optional.of(k);
+        }
+        return Optional.of(null);
+    }
 }
