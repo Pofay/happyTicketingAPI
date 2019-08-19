@@ -177,8 +177,6 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.members[:2].email", hasItem(u2.getEmail())));
     }
 
-
-
     @Test
     public void postWithBodyReturnsCorrectResult() throws Exception {
         String projectName = "ProjectM";
@@ -273,5 +271,4 @@ public class HappyTicketingApiApplicationTests {
                 .content(payload.toString())).andExpect(status().isForbidden()).andExpect(
                         jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
     }
-
 }
