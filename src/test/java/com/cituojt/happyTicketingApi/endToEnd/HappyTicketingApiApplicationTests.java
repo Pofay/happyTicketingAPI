@@ -156,6 +156,30 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
+    public void getForConnectedProjectWhenNotOwnerReturnsCorrectResult() throws Exception {
+        Project p = new Project("Hotel Management");
+        User u1 = new User("pofire@example.com", "auth0|123456");
+        User u2 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+
+        p.addMember(u1, "ROLE");
+        p.addMember(u2, "MEMBER");
+
+        projectRepo.save(p);
+        userRepo.save(u2);
+
+        int expectedId = Integer.parseInt(p.getId().toString());
+
+        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
+                .andDo(print()).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", equalTo(p.getName())))
+                .andExpect(jsonPath("$.id", equalTo(expectedId)))
+                .andExpect(jsonPath("$.members[:1].email", hasItem(u1.getEmail())))
+                .andExpect(jsonPath("$.members[:2].email", hasItem(u2.getEmail())));
+    }
+
+
+
+    @Test
     public void postWithBodyReturnsCorrectResult() throws Exception {
         String projectName = "ProjectM";
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -249,4 +273,5 @@ public class HappyTicketingApiApplicationTests {
                 .content(payload.toString())).andExpect(status().isForbidden()).andExpect(
                         jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
     }
+
 }

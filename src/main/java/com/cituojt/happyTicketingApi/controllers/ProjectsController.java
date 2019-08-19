@@ -53,7 +53,6 @@ public class ProjectsController {
             errorPayload.put("error", "access_token user is not yet registered or doesn't exist.");
             return ResponseEntity.status(403).body(errorPayload.toString());
         }
-
     }
 
     @GetMapping(value = "/api/v1/projects/{id}", produces = "application/json")
