@@ -1,11 +1,8 @@
 package com.cituojt.happyTicketingApi;
 
-// import java.util.Arrays;
-// import java.util.List;
-// import com.cituojt.happyTicketingApi.entities.Project;
-// import com.cituojt.happyTicketingApi.entities.ProjectMember;
-// import com.cituojt.happyTicketingApi.entities.ProjectMemberId;
-// import com.cituojt.happyTicketingApi.entities.User;
+import java.util.Arrays;
+import com.cituojt.happyTicketingApi.entities.Project;
+import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -30,27 +27,26 @@ public class HappyTicketingApiApplication {
     public CommandLineRunner demo(UserRepository userRepo, ProjectRepository projectRepo) {
 
         return (args) -> {
-            // projectRepo.deleteAll();
-            // userRepo.deleteAll();
+            projectRepo.deleteAll();
+            userRepo.deleteAll();
 
-            // User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-            // User u2 = new User("pofire@example.com", "auth0|123");
+            User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+            User u2 = new User("pofire@example.com", "auth0|123");
 
-            // Project p = new Project("Watsup");
-            // Project p2 = new Project("Cool Whip");
-            // p.addMember(u, "OWNER");
-            // p2.addMember(u2, "OWNER");
+            Project p = new Project("Watsup");
+            Project p2 = new Project("Cool Whip");
+            p.addMember(u, "OWNER");
+            p2.addMember(u2, "OWNER");
 
-            // projectRepo.saveAll(Arrays.asList(p, p2));
-            // userRepo.saveAll(Arrays.asList(u, u2));
+            projectRepo.saveAll(Arrays.asList(p, p2));
+            userRepo.saveAll(Arrays.asList(u, u2));
 
-            // Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
+            Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
 
-            // for (Project pr : projects) {
-            // System.out.println("Project Name: " + pr.getName());
-            // System.out.println("Member Count: " + pr.getMembers().size());
-            // }
-
+            for (Project pr : projects) {
+                System.out.println("Project Name: " + pr.getName());
+                System.out.println("Member Count: " + pr.getMembers().size());
+            }
         };
 
     }
