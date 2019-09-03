@@ -197,16 +197,18 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         String taskName = "MakeDB";
+        String status = "PARTIAL";
 
         JSONObject payload = new JSONObject();
         payload.put("name", taskName);
+        payload.put("status", status);
 
         mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks")
                 .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
                 .content(payload.toString())).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
-                .andExpect(jsonPath("$.tasks[:1].status", hasItem("TO IMPLEMENT")))
+                .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
 

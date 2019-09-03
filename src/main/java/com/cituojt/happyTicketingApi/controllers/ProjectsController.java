@@ -122,7 +122,7 @@ public class ProjectsController {
             User u = userOrNull.get();
             Project p = projectOrNull.get();
 
-            p.addTask(body.getName(), u.getEmail(), "TO IMPLEMENT");
+            p.addTask(body.getName(), u.getEmail(), body.getStatus());
 
             projectRepo.save(p);
 
