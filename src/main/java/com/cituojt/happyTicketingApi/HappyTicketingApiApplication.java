@@ -38,6 +38,11 @@ public class HappyTicketingApiApplication {
             p.addMember(u, "OWNER");
             p2.addMember(u2, "OWNER");
 
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
+            p.addTask("A Really Bad Task", u.getEmail(), "PARTIAL");
+            p.addTask("A Really Great Task", u.getEmail(), "COMPLETE");
+
             projectRepo.saveAll(Arrays.asList(p, p2));
             userRepo.saveAll(Arrays.asList(u, u2));
 
