@@ -2,7 +2,12 @@ package com.cituojt.happyTicketingApi.thirdParty;
 
 import com.cituojt.happyTicketingApi.controllers.RealtimeEmitter;
 import com.pusher.rest.Pusher;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 
+@Component
+@ComponentScan("com.cituojt.happyTicketingApi.thirdParty")
 public class PusherRealtimeEmitter implements RealtimeEmitter {
 
     private Pusher pusherImplementation;

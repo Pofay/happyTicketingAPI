@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 public class TestConfig {
 
     @Bean
-    public RealtimeEmitter realtimeEmitter() {
+    public RealtimeEmitter emitter() {
         return new NoOpRealtimeEmitter();
     }
 
