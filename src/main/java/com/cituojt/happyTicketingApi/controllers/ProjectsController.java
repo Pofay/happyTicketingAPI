@@ -39,10 +39,12 @@ public class ProjectsController {
 
     private UserRepository userRepo;
     private ProjectRepository projectRepo;
+    private RealtimeEmitter emitter;
 
     @Autowired
-    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo) {
+    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo, RealtimeEmitter emitter) {
         this.userRepo = userRepo;
+        this.emitter = emitter;
         this.projectRepo = projectRepo;
     }
 
