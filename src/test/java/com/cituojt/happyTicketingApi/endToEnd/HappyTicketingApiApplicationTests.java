@@ -62,31 +62,24 @@ public class HappyTicketingApiApplicationTests {
     private WebApplicationContext context;
 
     @Before
-    public void setup() {
+    public void setup_authentication_and_context() {
         userRepo.deleteAll();
         projectRepo.deleteAll();
 
-        String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
-                .withClientSecret(clientSecret)
-                .withUsernameAndPassword("pofay@example.com", "!pofay123").build();
-
-        HttpResponse<JsonNode> response = Unirest.post(String.format("%soauth/token", issuer))
-                .header("content-type", "application/x-www-form-urlencoded").body(body).asJson();
-        this.bearerToken = String.format("Bearer %s",
-                response.getBody().getObject().getString("access_token"));
+        this.bearerToken = this.requestBearerTokenFromAuth0();
 
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
 
     @After
-    public void teardown() {
-        Unirest.shutDown();
+    public void delete_all_records_and_close_event_loop() {
         userRepo.deleteAll();
         projectRepo.deleteAll();
+        Unirest.shutDown();
     }
 
     @Test
-    public void getOnProjectsURLReturns200WhenAuthenticated() throws Exception {
+    public void authenticated_user_with_user_creds_is_allowed_access_to_projects() throws Exception {
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         userRepo.save(u);
@@ -96,7 +89,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void getOnProjects_shouldReturnAnErrorWhenUserIsNotFound() throws Exception {
+    public void authenticated_user_with_no_user_creds_access_not_allowed() throws Exception {
         String errorMessage = "access_token user is not yet registered or doesn't exist.";
 
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
@@ -105,22 +98,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void withSavedProject_getReturnsCorrectResult() throws Exception {
-        Project p = new Project("ProjectM");
-        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-
-        p.addMember(u, "OWNER");
-
-        projectRepo.save(p);
-        userRepo.save(u);
-
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
-                .andExpect(jsonPath("$.data[:1].name", hasItem("ProjectM")))
-                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p.getId())));
-    }
-
-    @Test
-    public void triangulateOnGet() throws Exception {
+    public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
         Project p1 = new Project("Customer Satisfaction");
         Project p2 = new Project("Scrabble Trainer");
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -139,7 +117,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void getForConnectedProjectReturnsCorrectResult() throws Exception {
+    public void created_project_always_contains_owner_as_first_member() throws Exception {
         Project p = new Project("Hotel Management");
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
@@ -157,7 +135,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void postWithBodyReturnsCorrectResult() throws Exception {
+    public void created_project_through_post_always_contain_owner_as_first_member() throws Exception {
         String projectName = "ProjectM";
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
@@ -177,7 +155,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void postWithEmptyNameReturns400WithErrorMessage() throws Exception {
+    public void creating_a_project_requires_name() throws Exception {
         String projectName = "";
         String errorMessage = "name cannot be empty";
 
@@ -191,7 +169,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void postToTaskForProjectReturns201() throws Exception {
+    public void adding_task_is_through_posting_to_specific_project() throws Exception {
         Project p = new Project("Hotel Management");
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         p.addMember(u, "OWNER");
@@ -215,7 +193,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void withFoundEmail_addingGroupMembersToProjectReturns201WithMembersFieldChanged()
+    public void registered_emails_can_be_added_to_project_members()
             throws Exception {
         Project p = new Project("Hotel Management");
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -234,7 +212,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void withNoMatchingEmail_addingMembersToProjectReturns403WithErrorMessage()
+    public void nonregistered_emails_are_not_allowed()
             throws Exception {
         Project p = new Project("Hotel Management");
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -252,7 +230,7 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void updateTaskFieldsReturnsUpdatedValue() throws Exception {
+    public void updating_a_task_requires_all_fields() throws Exception {
         Project p = new Project("Hotel Management");
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         User u2 = new User("pofire@example.com", "auth0|1234");
@@ -279,4 +257,16 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.assignedTo", is(u2.getEmail())));
     }
 
+
+    public String requestBearerTokenFromAuth0() {
+        String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
+                .withClientSecret(clientSecret)
+                .withUsernameAndPassword("pofay@example.com", "!pofay123").build();
+
+
+        HttpResponse<JsonNode> response = Unirest.post(String.format("%soauth/token", issuer))
+                .header("content-type", "application/x-www-form-urlencoded").body(body).asJson();
+
+        return String.format("Bearer %s", response.getBody().getObject().getString("access_token"));
+    }
 }
