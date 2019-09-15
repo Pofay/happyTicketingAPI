@@ -1,6 +1,7 @@
 package com.cituojt.happyTicketingApi;
 
 import java.util.Arrays;
+import java.util.UUID;
 import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
@@ -33,8 +34,8 @@ public class HappyTicketingApiApplication {
             User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
             User u2 = new User("pofire@example.com", "auth0|123");
 
-            Project p = new Project("Watsup");
-            Project p2 = new Project("Cool Whip");
+            Project p = new Project("Watsup", UUID.randomUUID());
+            Project p2 = new Project("Cool Whip", UUID.randomUUID());
             p.addMember(u, "OWNER");
             p2.addMember(u2, "OWNER");
 

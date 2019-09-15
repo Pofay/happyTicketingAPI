@@ -3,6 +3,7 @@ package com.cituojt.happyTicketingApi.entities;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +22,8 @@ public class Project {
 
     private String name;
 
+    private String channelId;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
             orphanRemoval = true)
     private Set<ProjectMember> members = new HashSet<>();
@@ -29,11 +32,13 @@ public class Project {
             orphanRemoval = true)
     private Set<Task> tasks = new HashSet<>();
 
+
     public Project() {
     }
 
-    public Project(String name) {
+    public Project(String name, UUID channelId) {
         this.name = name;
+        this.channelId = channelId.toString();
     }
 
     public Long getId() {
@@ -73,11 +78,18 @@ public class Project {
     }
     // Add removal option
 
+    public String getChannelId() {
+        return channelId;
+    }
 
-    //get Task by ID
-    public Optional<Task> getTaskbyTaskId(Long id){
-        for(Task k:tasks){
-            if(k.getId()==id)
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    // get Task by ID
+    public Optional<Task> getTaskbyTaskId(Long id) {
+        for (Task k : tasks) {
+            if (k.getId() == id)
                 return Optional.of(k);
         }
         return Optional.of(null);

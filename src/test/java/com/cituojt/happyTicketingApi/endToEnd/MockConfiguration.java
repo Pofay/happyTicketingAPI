@@ -1,24 +1,17 @@
 package com.cituojt.happyTicketingApi.endToEnd;
 
 import com.cituojt.happyTicketingApi.controllers.RealtimeEmitter;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 @TestConfiguration
-public class TestConfig {
+public class MockConfiguration {
 
     @Bean
     public RealtimeEmitter emitter() {
-        return new NoOpRealtimeEmitter();
+        return Mockito.mock(RealtimeEmitter.class);
     }
 
-    public class NoOpRealtimeEmitter implements RealtimeEmitter {
-
-        @Override
-        public void emit(String channelName, String event, Object data) {
-            // Do nothing
-        }
-
-    }
 }
 

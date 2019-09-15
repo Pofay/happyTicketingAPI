@@ -11,12 +11,23 @@ public class ProjectDetailsJSON {
     private String name;
     private Set<UserJSON> members;
     private Set<TaskJSON> tasks;
+    private String channelName;
 
-    public ProjectDetailsJSON(Long id, String name, Set<ProjectMember> members, Set<Task> tasks) {
+    public ProjectDetailsJSON(Long id, String name, Set<ProjectMember> members, Set<Task> tasks,
+            String channelId) {
         this.setId(id);
         this.setName(name);
+        this.setChannelName(String.format("%s|%s", channelId, this.name));
         this.members = processMembers(members);
         this.tasks = processTasks(tasks);
+    }
+
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
+    public String getChannelName() {
+        return channelName;
     }
 
     private Set<UserJSON> processMembers(Set<ProjectMember> members) {
@@ -31,7 +42,8 @@ public class ProjectDetailsJSON {
     private Set<TaskJSON> processTasks(Set<Task> tasks) {
         Set<TaskJSON> tasksJSON = new HashSet<>();
         for (Task t : tasks) {
-            TaskJSON taskJSON= new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+            TaskJSON taskJSON =
+                    new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
             tasksJSON.add(taskJSON);
         }
         return tasksJSON;
