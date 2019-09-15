@@ -57,7 +57,8 @@ public class ProjectsController {
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
-            return ResponseEntity.ok(constructResponse(u));
+            Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
+            return ResponseEntity.ok(mapProjectsToJson(projects));
         } else {
             JSONObject errorPayload = new JSONObject();
             errorPayload.put("error", "access_token user is not yet registered or doesn't exist.");
@@ -72,11 +73,7 @@ public class ProjectsController {
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
         if (projectOrNull.isPresent()) {
-            Project project = projectOrNull.get();
-            ProjectDetailsJSON payload = new ProjectDetailsJSON(project.getId(), project.getName(),
-                    project.getMembers(), project.getTasks(), project.getChannelId());
-
-            return ResponseEntity.ok(payload);
+            return ResponseMapper.mapProjectToJson(projectOrNull.get(), 200);
         } else
             return ResponseEntity.notFound().build();
     }
@@ -102,10 +99,7 @@ public class ProjectsController {
 
             projectRepo.save(p);
 
-            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
-                    p.getMembers(), p.getTasks(), p.getChannelId());
-
-            return ResponseEntity.status(201).body(payload);
+            return ResponseMapper.mapProjectToJson(p, 201);
         }
 
         else {
@@ -130,10 +124,7 @@ public class ProjectsController {
 
             projectRepo.save(p);
 
-            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
-                    p.getMembers(), p.getTasks(), p.getChannelId());
-
-            return ResponseEntity.status(201).body(payload);
+            return ResponseMapper.mapProjectToJson(p, 201);
         } else {
             return ResponseEntity.badRequest().build();
         }
@@ -154,10 +145,7 @@ public class ProjectsController {
 
                 projectRepo.save(p);
 
-                ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
-                        p.getMembers(), p.getTasks(), p.getChannelId());
-
-                return ResponseEntity.status(201).body(payload);
+                return ResponseMapper.mapProjectToJson(p, 201);
             } else {
                 JSONObject errorPayload = new JSONObject();
                 errorPayload.put("error", "email is not yet registered to system.");
@@ -202,8 +190,7 @@ public class ProjectsController {
         return ResponseEntity.status(404).build();
     }
 
-    private IndexResponse constructResponse(User u) {
-        Iterable<Project> projects = this.projectRepo.getProjectsForUser(u.getId());
+    private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
         List<ProjectJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
             ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
