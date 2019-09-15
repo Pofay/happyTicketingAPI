@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
+import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.JSONObject;
@@ -42,7 +42,8 @@ public class ProjectsController {
     private RealtimeEmitter emitter;
 
     @Autowired
-    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo, RealtimeEmitter emitter) {
+    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo,
+            RealtimeEmitter emitter) {
         this.userRepo = userRepo;
         this.emitter = emitter;
         this.projectRepo = projectRepo;
@@ -73,7 +74,7 @@ public class ProjectsController {
         if (projectOrNull.isPresent()) {
             Project project = projectOrNull.get();
             ProjectDetailsJSON payload = new ProjectDetailsJSON(project.getId(), project.getName(),
-                    project.getMembers(), project.getTasks());
+                    project.getMembers(), project.getTasks(), project.getChannelId());
 
             return ResponseEntity.ok(payload);
         } else
@@ -81,8 +82,8 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects", produces = "application/json")
-    public ResponseEntity createProject(@RequestBody CreateProjectRequest body, HttpServletRequest req,
-            HttpServletResponse res) {
+    public ResponseEntity createProject(@RequestBody CreateProjectRequest body,
+            HttpServletRequest req, HttpServletResponse res) {
 
         if (body.getName().isEmpty()) {
             JSONObject payload = new JSONObject();
@@ -96,12 +97,13 @@ public class ProjectsController {
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
-            Project p = new Project(body.getName());
+            Project p = new Project(body.getName(), UUID.randomUUID());
             p.addMember(u, "OWNER");
 
             projectRepo.save(p);
 
-            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
+            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
+                    p.getMembers(), p.getTasks(), p.getChannelId());
 
             return ResponseEntity.status(201).body(payload);
         }
@@ -112,8 +114,8 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity addTaskToProject(@PathVariable("id") long id, @RequestBody CreateTaskRequest body,
-            HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity addTaskToProject(@PathVariable("id") long id,
+            @RequestBody CreateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
 
         String oauthId = getOauthIdFromRequest(req);
 
@@ -128,7 +130,8 @@ public class ProjectsController {
 
             projectRepo.save(p);
 
-            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks());
+            ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
+                    p.getMembers(), p.getTasks(), p.getChannelId());
 
             return ResponseEntity.status(201).body(payload);
         } else {
@@ -137,8 +140,8 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/members", produces = "application/json")
-    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body, @PathVariable("id") long id,
-            HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body,
+            @PathVariable("id") long id, HttpServletRequest req, HttpServletResponse res) {
 
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
@@ -151,8 +154,8 @@ public class ProjectsController {
 
                 projectRepo.save(p);
 
-                ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(),
-                        p.getTasks());
+                ProjectDetailsJSON payload = new ProjectDetailsJSON(p.getId(), p.getName(),
+                        p.getMembers(), p.getTasks(), p.getChannelId());
 
                 return ResponseEntity.status(201).body(payload);
             } else {
@@ -167,8 +170,8 @@ public class ProjectsController {
     }
 
     @PutMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity updateTask(@PathVariable("id") long id, @RequestBody UpdateTaskRequest body,
-            HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity updateTask(@PathVariable("id") long id,
+            @RequestBody UpdateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
 
         String oauthId = getOauthIdFromRequest(req);
 
@@ -189,7 +192,8 @@ public class ProjectsController {
                     // save project which also hopefully saves the task changes
                     projectRepo.save(p);
 
-                    TaskJSON payload = new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+                    TaskJSON payload =
+                            new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
                     return ResponseEntity.status(200).body(payload);
                 }
             }
@@ -202,7 +206,8 @@ public class ProjectsController {
         Iterable<Project> projects = this.projectRepo.getProjectsForUser(u.getId());
         List<ProjectJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
-            ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects", Arrays.asList("GET", "POST"));
+            ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
+                    Arrays.asList("GET", "POST"));
             jsonResponse.add(json);
         }
 

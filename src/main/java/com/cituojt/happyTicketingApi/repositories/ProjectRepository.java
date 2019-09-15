@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectRepository extends CrudRepository<Project, ProjectMemberId> {
 
-    @Query(value = "SELECT project_id, name from project p join project_member m join user u WHERE u.id = :userId AND m.user_id= :userId AND m.project_project_id= p.project_id",
+    @Query(value = "SELECT project_id, name, channel_id from project p join project_member m join user u WHERE u.id = :userId AND m.user_id= :userId AND m.project_project_id= p.project_id",
             nativeQuery = true)
     public Iterable<Project> getProjectsForUser(@Param("userId") Long userId);
 

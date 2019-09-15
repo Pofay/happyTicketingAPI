@@ -1,5 +1,6 @@
 package com.cituojt.happyTicketingApi.endToEnd;
 
+import com.cituojt.happyTicketingApi.controllers.RealtimeEmitter;
 import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.Task;
 import com.cituojt.happyTicketingApi.entities.User;
@@ -24,8 +25,11 @@ import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
 import net.minidev.json.JSONObject;
 import java.util.Arrays;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import java.util.UUID;
 import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -33,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@Import(TestConfig.class)
+@Import(MockConfiguration.class)
 public class HappyTicketingApiApplicationTests {
 
     @Autowired
@@ -41,6 +45,9 @@ public class HappyTicketingApiApplicationTests {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private RealtimeEmitter emitter;
 
     @Value(value = "${auth0.apiAudience}")
     private String audience;
@@ -79,7 +86,8 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void authenticated_user_with_user_creds_is_allowed_access_to_projects() throws Exception {
+    public void authenticated_user_with_user_creds_is_allowed_access_to_projects()
+            throws Exception {
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         userRepo.save(u);
@@ -99,8 +107,8 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
-        Project p1 = new Project("Customer Satisfaction");
-        Project p2 = new Project("Scrabble Trainer");
+        Project p1 = new Project("Customer Satisfaction", UUID.randomUUID());
+        Project p2 = new Project("Scrabble Trainer", UUID.randomUUID());
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         p1.addMember(u, "OWNER");
@@ -117,8 +125,10 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void created_project_always_contains_owner_as_first_member() throws Exception {
-        Project p = new Project("Hotel Management");
+    public void created_projects_contains_members_tasks_name_and_channelName() throws Exception {
+        UUID channelId = UUID.randomUUID();
+        String projectName = "Hotel Management";
+        Project p = new Project(projectName, channelId);
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         p.addMember(u, "OWNER");
@@ -127,15 +137,19 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         int expectedId = Integer.parseInt(p.getId().toString());
+        String channelName = String.format("%s|%s", channelId, projectName);
 
         mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.name", equalTo(p.getName())))
+                .andExpect(jsonPath("$.name", equalTo(p.getName())))
                 .andExpect(jsonPath("$.id", equalTo(expectedId)))
+                .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
+                .andExpect(jsonPath("$.members", iterableWithSize(1)))
+                .andExpect(jsonPath("$.channelName", equalTo(channelName)))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
     }
 
     @Test
-    public void created_project_through_post_always_contain_owner_as_first_member() throws Exception {
+    public void can_create_a_project_through_post() throws Exception {
         String projectName = "ProjectM";
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
@@ -148,8 +162,11 @@ public class HappyTicketingApiApplicationTests {
 
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
                 .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
-                .andExpect(status().isCreated()).andExpect(jsonPath("$.name", is(projectName)))
                 .andExpect(jsonPath("$.id", is(notNullValue())))
+                .andExpect(jsonPath("$.name", is(projectName)))
+                .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
+                .andExpect(jsonPath("$.members", iterableWithSize(1)))
+                .andExpect(jsonPath("$.channelName", is(notNullValue())))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())))
                 .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
     }
@@ -170,7 +187,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void adding_task_is_through_posting_to_specific_project() throws Exception {
-        Project p = new Project("Hotel Management");
+        Project p = new Project("Hotel Management", UUID.randomUUID());
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         p.addMember(u, "OWNER");
         projectRepo.save(p);
@@ -193,9 +210,8 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void registered_emails_can_be_added_to_project_members()
-            throws Exception {
-        Project p = new Project("Hotel Management");
+    public void registered_emails_can_be_added_to_project_members() throws Exception {
+        Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         User u2 = new User("pofire@example.com", "auth0|123456");
         p.addMember(u1, "OWNER");
@@ -212,9 +228,8 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void nonregistered_emails_are_not_allowed()
-            throws Exception {
-        Project p = new Project("Hotel Management");
+    public void nonregistered_emails_are_not_allowed() throws Exception {
+        Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         p.addMember(u1, "OWNER");
         projectRepo.save(p);
@@ -231,7 +246,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void updating_a_task_requires_all_fields() throws Exception {
-        Project p = new Project("Hotel Management");
+        Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         User u2 = new User("pofire@example.com", "auth0|1234");
         Task t = new Task("Some Task", u1.getEmail(), "TO IMPLEMENT");
