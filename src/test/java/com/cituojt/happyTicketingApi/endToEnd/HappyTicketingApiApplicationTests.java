@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,8 +28,6 @@ import net.minidev.json.JSONObject;
 import java.util.Arrays;
 import java.util.UUID;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.isNotNull;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -271,7 +270,6 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.status", is(t.getStatus())))
                 .andExpect(jsonPath("$.assignedTo", is(u2.getEmail())));
     }
-
 
     public String requestBearerTokenFromAuth0() {
         String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)

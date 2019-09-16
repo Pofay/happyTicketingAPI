@@ -14,10 +14,10 @@ public class ProjectDetailsJSON {
     private String channelName;
 
     public ProjectDetailsJSON(Long id, String name, Set<ProjectMember> members, Set<Task> tasks,
-            String channelId) {
+            String channelName) {
         this.setId(id);
         this.setName(name);
-        this.setChannelName(String.format("%s|%s", channelId, this.name));
+        this.setChannelName(channelName);
         this.members = processMembers(members);
         this.tasks = processTasks(tasks);
     }

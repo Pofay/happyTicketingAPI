@@ -86,6 +86,10 @@ public class Project {
         this.channelId = channelId;
     }
 
+    public String getChannelName() {
+        return String.format("%s|%s", channelId, name);
+    }
+
     // get Task by ID
     public Optional<Task> getTaskbyTaskId(Long id) {
         for (Task k : tasks) {
