@@ -45,9 +45,6 @@ public class HappyTicketingApiApplicationTests {
     @Autowired
     private UserRepository userRepo;
 
-    @Autowired
-    private RealtimeEmitter emitter;
-
     @Value(value = "${auth0.apiAudience}")
     private String audience;
 
@@ -119,8 +116,10 @@ public class HappyTicketingApiApplicationTests {
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
+                .andExpect(jsonPath("$.data[:1].channelName", hasItem(p1.getChannelName())))
                 .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
                 .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())));
+
     }
 
     @Test
