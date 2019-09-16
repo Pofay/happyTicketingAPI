@@ -8,7 +8,7 @@ public class ResponseMapper {
 
     public static ResponseEntity mapProjectToJson(Project p, int status) {
         ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(),
-                p.getTasks(), p.getChannelId());
+                p.getTasks(), p.getChannelName());
         return ResponseEntity.status(status).body(json);
     }
 }
