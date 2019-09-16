@@ -8,12 +8,22 @@ public class ProjectJSON {
     private Long id;
     private String url;
     private List<String> methods;
+    private String channelName;
 
-    public ProjectJSON(Long id, String name, String url, List<String> methods) {
+    public ProjectJSON(Long id, String name, String url, List<String> methods, String channelName) {
         this.setId(id);
         this.setName(name);
         this.setUrl(url);
         this.setMethods(methods);
+        this.setChannelName(channelName);
+    }
+
+    private void setChannelName(String channelName) {
+        this.channelName = channelName;
+    }
+
+    public String getChannelName() {
+        return channelName;
     }
 
     public List<String> getMethods() {

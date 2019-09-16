@@ -1,6 +1,5 @@
 package com.cituojt.happyTicketingApi.endToEnd;
 
-import com.cituojt.happyTicketingApi.controllers.RealtimeEmitter;
 import com.cituojt.happyTicketingApi.entities.Project;
 import com.cituojt.happyTicketingApi.entities.Task;
 import com.cituojt.happyTicketingApi.entities.User;
@@ -10,7 +9,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,9 +42,6 @@ public class HappyTicketingApiApplicationTests {
 
     @Autowired
     private UserRepository userRepo;
-
-    @Autowired
-    private RealtimeEmitter emitter;
 
     @Value(value = "${auth0.apiAudience}")
     private String audience;
@@ -119,8 +114,10 @@ public class HappyTicketingApiApplicationTests {
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
+                .andExpect(jsonPath("$.data[:1].channelName", hasItem(p1.getChannelName())))
                 .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
-                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())));
+                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())))
+                .andExpect(jsonPath("$.data[:2].channelName", hasItem(p2.getChannelName())));
     }
 
     @Test

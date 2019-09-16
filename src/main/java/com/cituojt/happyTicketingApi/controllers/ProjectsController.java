@@ -201,7 +201,7 @@ public class ProjectsController {
         List<ProjectJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
             ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
-                    Arrays.asList("GET", "POST"));
+                    Arrays.asList("GET", "POST"), p.getChannelName());
             jsonResponse.add(json);
         }
 
