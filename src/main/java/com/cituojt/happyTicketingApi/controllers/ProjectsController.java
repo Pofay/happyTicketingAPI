@@ -18,7 +18,9 @@ import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -119,10 +121,15 @@ public class ProjectsController {
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
             User u = userOrNull.get();
             Project p = projectOrNull.get();
+            Task t = new Task(body.getName(), u.getEmail(), body.getStatus());
 
-            p.addTask(body.getName(), u.getEmail(), body.getStatus());
+            p.addTask(t);
 
             projectRepo.save(p);
+
+            TaskJSON taskAddedPayload =
+                    new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+            emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
             return ResponseMapper.mapProjectToJson(p, 201);
         } else {
