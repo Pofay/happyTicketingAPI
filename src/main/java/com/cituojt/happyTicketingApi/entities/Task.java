@@ -1,5 +1,6 @@
 package com.cituojt.happyTicketingApi.entities;
 
+import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,9 +14,8 @@ import javax.persistence.Table;
 public class Task {
 
     @Id
-    @GeneratedValue
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
 
 
     @ManyToOne
@@ -32,14 +32,19 @@ public class Task {
 
     }
 
-    public Task(String name, String assignedTo, String status) {
+    public Task(UUID id, String name, String assignedTo, String status) {
+        this.id = id.toString();
         this.name = name;
         this.assignedTo = assignedTo;
         this.status = status;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getStatus() {

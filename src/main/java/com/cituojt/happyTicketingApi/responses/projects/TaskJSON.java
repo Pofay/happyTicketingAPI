@@ -2,12 +2,12 @@ package com.cituojt.happyTicketingApi.responses.projects;
 
 public class TaskJSON {
 
-    private Long id;
+    private String id;
     private String name;
     private String assignedTo;
     private String status;
 
-    public TaskJSON(Long id, String name, String assignedTo, String status) {
+    public TaskJSON(String id, String name, String assignedTo, String status) {
         this.setId(id);
         this.setName(name);
         this.setAssignedTo(assignedTo);
@@ -38,11 +38,11 @@ public class TaskJSON {
         this.name = name;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

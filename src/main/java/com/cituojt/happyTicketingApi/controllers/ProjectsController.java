@@ -105,7 +105,7 @@ public class ProjectsController {
         }
 
         else {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(403).build();
         }
     }
 
@@ -121,7 +121,7 @@ public class ProjectsController {
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
             User u = userOrNull.get();
             Project p = projectOrNull.get();
-            Task t = new Task(body.getName(), u.getEmail(), body.getStatus());
+            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus());
 
             p.addTask(t);
 
@@ -168,34 +168,25 @@ public class ProjectsController {
     @PutMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
     public ResponseEntity updateTask(@PathVariable("id") long id,
             @RequestBody UpdateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
-
-        String oauthId = getOauthIdFromRequest(req);
-
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
         if (projectOrNull.isPresent()) {
-
             Project p = projectOrNull.get();
 
-            Set<Task> tasks = p.getTasks();
+            Optional<Task> taskOrNull = p.getTaskbyTaskId(body.getId());
             // check if task is in the project
-            for (Task t : tasks) {
-                if (t.getId() == body.getId()) {
-
-                    t.setName(body.getName());
-                    t.setAssignedTo(body.getAssignedTo());
-                    t.setStatus(body.getStatus());
-                    // save project which also hopefully saves the task changes
-                    projectRepo.save(p);
-
-                    TaskJSON payload =
-                            new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
-                    return ResponseEntity.status(200).body(payload);
-                }
-            }
-            return ResponseEntity.status(404).body("Task Not Found In Project!");
-        }
-        return ResponseEntity.status(404).build();
+            if (taskOrNull.isPresent()) {
+                Task t = taskOrNull.get();
+                t.setName(body.getName());
+                t.setAssignedTo(body.getAssignedTo());
+                t.setStatus(body.getStatus());
+                TaskJSON payload =
+                        new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+                return ResponseEntity.status(200).body(payload);
+            } else
+                return ResponseEntity.status(403).body("Task Not Found In Project!");
+        } else
+            return ResponseEntity.status(403).build();
     }
 
     private IndexResponse mapProjectsToJson(Iterable<Project> projects) {

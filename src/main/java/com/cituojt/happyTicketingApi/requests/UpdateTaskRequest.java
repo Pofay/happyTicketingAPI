@@ -4,7 +4,7 @@ import org.springframework.lang.Nullable;
 
 public class UpdateTaskRequest {
 
-    private Long id;
+    private String id;
     private String name;
     private String assignedTo;
     private String status;
@@ -12,18 +12,18 @@ public class UpdateTaskRequest {
     public UpdateTaskRequest() {
     }
 
-    public UpdateTaskRequest(Long id, String name, String assignedTo, String status) {
+    public UpdateTaskRequest(String id, String name, String assignedTo, String status) {
         this.setId(id);
         this.setName(name);
         this.setAssignedTo(assignedTo);
         this.setStatus(status);
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
