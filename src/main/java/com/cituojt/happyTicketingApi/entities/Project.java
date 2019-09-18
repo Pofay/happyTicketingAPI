@@ -87,7 +87,7 @@ public class Project {
     }
 
     public String getChannelName() {
-        return String.format("%s|%s", channelId, name);
+        return String.format("%s@%s", channelId, name);
     }
 
     // get Task by ID

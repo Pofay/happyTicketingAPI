@@ -133,7 +133,7 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         int expectedId = Integer.parseInt(p.getId().toString());
-        String channelName = String.format("%s|%s", channelId, projectName);
+        String channelName = String.format("%s@%s", channelId, projectName);
 
         mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
                 .andExpect(jsonPath("$.name", equalTo(p.getName())))
@@ -258,7 +258,7 @@ public class HappyTicketingApiApplicationTests {
         payload.put("name", t.getName());
         payload.put("id", t.getId());
 
-        int id = Integer.parseInt(t.getId().toString());
+        int id = t.getId().intValue();
 
         mvc.perform(put("/api/v1/projects/" + p.getId() + "/tasks")
                 .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)

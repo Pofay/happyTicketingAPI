@@ -129,6 +129,7 @@ public class ProjectsController {
 
             TaskJSON taskAddedPayload =
                     new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+
             emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
             return ResponseMapper.mapProjectToJson(p, 201);

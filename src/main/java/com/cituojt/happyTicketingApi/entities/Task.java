@@ -1,5 +1,6 @@
 package com.cituojt.happyTicketingApi.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -13,7 +14,9 @@ public class Task {
 
     @Id
     @GeneratedValue
+    @Column(name = "id", nullable = false)
     private Long id;
+
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
