@@ -67,7 +67,7 @@ public class Project {
     }
 
     public void addTask(String name, String email, String status) {
-        Task t = new Task(name, email, status);
+        Task t = new Task(UUID.randomUUID(), name, email, status);
         tasks.add(t);
         t.setProject(this);
     }
@@ -87,13 +87,13 @@ public class Project {
     }
 
     public String getChannelName() {
-        return String.format("%s|%s", channelId, name);
+        return String.format("%s@%s", channelId, name);
     }
 
     // get Task by ID
-    public Optional<Task> getTaskbyTaskId(Long id) {
+    public Optional<Task> getTaskbyTaskId(String id) {
         for (Task k : tasks) {
-            if (k.getId() == id)
+            if (k.getId().equals(id))
                 return Optional.of(k);
         }
         return Optional.of(null);

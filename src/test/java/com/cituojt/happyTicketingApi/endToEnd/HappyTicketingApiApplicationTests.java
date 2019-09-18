@@ -133,7 +133,7 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         int expectedId = Integer.parseInt(p.getId().toString());
-        String channelName = String.format("%s|%s", channelId, projectName);
+        String channelName = String.format("%s@%s", channelId, projectName);
 
         mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
                 .andExpect(jsonPath("$.name", equalTo(p.getName())))
@@ -245,7 +245,7 @@ public class HappyTicketingApiApplicationTests {
         Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         User u2 = new User("pofire@example.com", "auth0|1234");
-        Task t = new Task("Some Task", u1.getEmail(), "TO IMPLEMENT");
+        Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT");
         p.addMember(u1, "OWNER");
         p.addMember(u2, "MEMBER");
         p.addTask(t);
@@ -258,7 +258,7 @@ public class HappyTicketingApiApplicationTests {
         payload.put("name", t.getName());
         payload.put("id", t.getId());
 
-        int id = Integer.parseInt(t.getId().toString());
+        String id = t.getId();
 
         mvc.perform(put("/api/v1/projects/" + p.getId() + "/tasks")
                 .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
