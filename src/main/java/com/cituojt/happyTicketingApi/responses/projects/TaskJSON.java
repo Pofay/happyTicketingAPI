@@ -6,12 +6,22 @@ public class TaskJSON {
     private String name;
     private String assignedTo;
     private String status;
+    private Long projectId;
 
-    public TaskJSON(String id, String name, String assignedTo, String status) {
+    public TaskJSON(String id, Long projectId, String name, String assignedTo, String status) {
         this.setId(id);
+        this.setProjectId(projectId);
         this.setName(name);
         this.setAssignedTo(assignedTo);
         this.setStatus(status);
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
     }
 
     public String getStatus() {

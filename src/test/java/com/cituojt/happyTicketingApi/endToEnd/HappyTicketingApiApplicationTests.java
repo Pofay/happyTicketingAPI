@@ -203,6 +203,7 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
+                .andExpect(jsonPath("$.tasks[:1].projectId", hasItem(p.getId().intValue())))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
 
