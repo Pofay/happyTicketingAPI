@@ -101,6 +101,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
+        projectRepo.deleteAll();
         Project p1 = new Project("Customer Satisfaction", UUID.randomUUID());
         Project p2 = new Project("Scrabble Trainer", UUID.randomUUID());
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -112,12 +113,12 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
+                .andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
-                .andExpect(jsonPath("$.data[:1].url", hasItem("/v1/projects/" + p1.getId())))
+                .andExpect(jsonPath("$.data[:1].members", iterableWithSize(1)))
+                .andExpect(jsonPath("$.data[:1].tasks", is(notNullValue())))
                 .andExpect(jsonPath("$.data[:1].channelName", hasItem(p1.getChannelName())))
-                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")))
-                .andExpect(jsonPath("$.data[:2].url", hasItem("/v1/projects/" + p2.getId())))
-                .andExpect(jsonPath("$.data[:2].channelName", hasItem(p2.getChannelName())));
+                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")));
     }
 
     @Test
@@ -202,6 +203,7 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
+                .andExpect(jsonPath("$.tasks[:1].projectId", hasItem(p.getId().intValue())))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
 

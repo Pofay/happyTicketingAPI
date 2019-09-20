@@ -43,7 +43,7 @@ public class ProjectDetailsJSON {
         Set<TaskJSON> tasksJSON = new HashSet<>();
         for (Task t : tasks) {
             TaskJSON taskJSON =
-                    new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+                    new TaskJSON(t.getId(), this.id, t.getName(), t.getAssignedTo(), t.getStatus());
             tasksJSON.add(taskJSON);
         }
         return tasksJSON;

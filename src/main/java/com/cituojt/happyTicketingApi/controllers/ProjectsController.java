@@ -13,16 +13,11 @@ import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
 import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
-import com.cituojt.happyTicketingApi.responses.projects.ProjectJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -127,8 +122,8 @@ public class ProjectsController {
 
             projectRepo.save(p);
 
-            TaskJSON taskAddedPayload =
-                    new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+            TaskJSON taskAddedPayload = new TaskJSON(t.getId(), p.getId(), t.getName(),
+                    t.getAssignedTo(), t.getStatus());
 
             emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
@@ -180,8 +175,8 @@ public class ProjectsController {
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
-                TaskJSON payload =
-                        new TaskJSON(t.getId(), t.getName(), t.getAssignedTo(), t.getStatus());
+                TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
+                        t.getAssignedTo(), t.getStatus());
                 return ResponseEntity.status(200).body(payload);
             } else
                 return ResponseEntity.status(403).body("Task Not Found In Project!");
@@ -190,10 +185,10 @@ public class ProjectsController {
     }
 
     private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
-        List<ProjectJSON> jsonResponse = new ArrayList<>();
+        List<ProjectDetailsJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
-            ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
-                    Arrays.asList("GET", "POST"), p.getChannelName());
+            ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(),
+                    p.getTasks(), p.getChannelName());
             jsonResponse.add(json);
         }
 
