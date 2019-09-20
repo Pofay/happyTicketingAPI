@@ -4,17 +4,17 @@ import java.util.List;
 
 public class IndexResponse {
 
-    private List<ProjectJSON> data;
+    private List<ProjectDetailsJSON> data;
 
-    public IndexResponse(List<ProjectJSON> data) {
+    public IndexResponse(List<ProjectDetailsJSON> data) {
         this.setData(data);
     }
 
-    public List<ProjectJSON> getData() {
+    public List<ProjectDetailsJSON> getData() {
         return data;
     }
 
-    public void setData(List<ProjectJSON> data) {
+    public void setData(List<ProjectDetailsJSON> data) {
         this.data = data;
     }
 }

@@ -190,10 +190,10 @@ public class ProjectsController {
     }
 
     private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
-        List<ProjectJSON> jsonResponse = new ArrayList<>();
+        List<ProjectDetailsJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
-            ProjectJSON json = new ProjectJSON(p.getId(), p.getName(), "/v1/projects",
-                    Arrays.asList("GET", "POST"), p.getChannelName());
+            ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(),
+                    p.getTasks(), p.getChannelName());
             jsonResponse.add(json);
         }
 
