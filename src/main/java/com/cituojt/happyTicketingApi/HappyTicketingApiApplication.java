@@ -37,7 +37,10 @@ public class HappyTicketingApiApplication {
             Project p = new Project("Watsup", UUID.randomUUID());
             Project p2 = new Project("Cool Whip", UUID.randomUUID());
             p.addMember(u, "OWNER");
+            p.addMember(u2, "MEMBER");
             p2.addMember(u2, "OWNER");
+            p2.addMember(u, "MEMBER");
+
 
             p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
             p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");

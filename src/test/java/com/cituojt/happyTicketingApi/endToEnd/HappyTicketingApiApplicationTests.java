@@ -114,11 +114,11 @@ public class HappyTicketingApiApplicationTests {
 
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
                 .andDo(print())
-                .andExpect(jsonPath("$.data[:1].name", hasItem("Customer Satisfaction")))
+                .andExpect(jsonPath("$.data[:1].name", hasItem("Customer-Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.data[:1].tasks", is(notNullValue())))
                 .andExpect(jsonPath("$.data[:1].channelName", hasItem(p1.getChannelName())))
-                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble Trainer")));
+                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble-Trainer")));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class HappyTicketingApiApplicationTests {
         userRepo.save(u);
 
         int expectedId = Integer.parseInt(p.getId().toString());
-        String channelName = String.format("%s@%s", channelId, projectName);
+        String channelName = String.format("%s@%s", channelId, projectName.replace(' ', '-'));
 
         mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
                 .andExpect(jsonPath("$.name", equalTo(p.getName())))

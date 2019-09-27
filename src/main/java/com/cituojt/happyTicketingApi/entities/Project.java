@@ -37,7 +37,7 @@ public class Project {
     }
 
     public Project(String name, UUID channelId) {
-        this.name = name;
+        this.name = name.replace(' ', '-').replace(':', ';');
         this.channelId = channelId.toString();
     }
 
