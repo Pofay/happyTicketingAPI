@@ -145,9 +145,7 @@ public class ProjectsController {
             if (userOrNull.isPresent()) {
                 User u = userOrNull.get();
                 p.addMember(u, "MEMBER");
-
                 projectRepo.save(p);
-
                 return ResponseMapper.mapProjectToJson(p, 201);
             } else {
                 JSONObject errorPayload = new JSONObject();
