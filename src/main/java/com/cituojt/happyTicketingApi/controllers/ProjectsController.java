@@ -14,7 +14,7 @@ import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
-
+import com.cituojt.happyTicketingApi.responses.projects.UserJSON;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -146,6 +146,10 @@ public class ProjectsController {
                 User u = userOrNull.get();
                 p.addMember(u, "MEMBER");
                 projectRepo.save(p);
+
+                UserJSON payload = new UserJSON(u.getId(), u.getEmail(), p.getId());
+                emitter.emit(p.getChannelName(), "member-added", payload);
+
                 return ResponseMapper.mapProjectToJson(p, 201);
             } else {
                 JSONObject errorPayload = new JSONObject();

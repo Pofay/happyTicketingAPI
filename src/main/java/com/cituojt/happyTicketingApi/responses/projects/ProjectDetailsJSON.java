@@ -33,7 +33,7 @@ public class ProjectDetailsJSON {
     private Set<UserJSON> processMembers(Set<ProjectMember> members) {
         Set<UserJSON> membersJSON = new HashSet<>();
         for (ProjectMember m : members) {
-            UserJSON userJSON = new UserJSON(m.getUser().getId(), m.getUser().getEmail());
+            UserJSON userJSON = new UserJSON(m.getUser().getId(), m.getUser().getEmail(), this.id);
             membersJSON.add(userJSON);
         }
         return membersJSON;
