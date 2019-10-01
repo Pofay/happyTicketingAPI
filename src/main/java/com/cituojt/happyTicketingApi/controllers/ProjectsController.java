@@ -177,8 +177,10 @@ public class ProjectsController {
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
+                projectRepo.save(p);
                 TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
                         t.getAssignedTo(), t.getStatus());
+                emitter.emit(p.getChannelName(), "task-updated", payload);
                 return ResponseEntity.status(200).body(payload);
             } else
                 return ResponseEntity.status(403).body("Task Not Found In Project!");
