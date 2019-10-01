@@ -33,11 +33,16 @@ public class HappyTicketingApiApplication {
 
             User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
             User u2 = new User("pofire@example.com", "auth0|123");
+            User u3 = new User("some@example.com", "auth0|456");
+            User u4 = new User("exuberant@example.com", "auth0|12345");
 
             Project p = new Project("Watsup", UUID.randomUUID());
             Project p2 = new Project("Cool Whip", UUID.randomUUID());
             p.addMember(u, "OWNER");
+            p.addMember(u2, "MEMBER");
             p2.addMember(u2, "OWNER");
+            p2.addMember(u, "MEMBER");
+
 
             p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
             p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
@@ -45,7 +50,7 @@ public class HappyTicketingApiApplication {
             p.addTask("A Really Great Task", u.getEmail(), "COMPLETE");
 
             projectRepo.saveAll(Arrays.asList(p, p2));
-            userRepo.saveAll(Arrays.asList(u, u2));
+            userRepo.saveAll(Arrays.asList(u, u2, u3, u4));
 
             Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
 

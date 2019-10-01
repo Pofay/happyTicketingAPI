@@ -14,7 +14,7 @@ import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
-
+import com.cituojt.happyTicketingApi.responses.projects.UserJSON;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -145,8 +145,10 @@ public class ProjectsController {
             if (userOrNull.isPresent()) {
                 User u = userOrNull.get();
                 p.addMember(u, "MEMBER");
-
                 projectRepo.save(p);
+
+                UserJSON payload = new UserJSON(u.getId(), u.getEmail(), p.getId());
+                emitter.emit(p.getChannelName(), "member-added", payload);
 
                 return ResponseMapper.mapProjectToJson(p, 201);
             } else {
@@ -175,8 +177,10 @@ public class ProjectsController {
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
+                projectRepo.save(p);
                 TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
                         t.getAssignedTo(), t.getStatus());
+                emitter.emit(p.getChannelName(), "task-updated", payload);
                 return ResponseEntity.status(200).body(payload);
             } else
                 return ResponseEntity.status(403).body("Task Not Found In Project!");
