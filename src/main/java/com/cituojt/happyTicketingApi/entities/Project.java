@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -67,8 +68,8 @@ public class Project {
         members.add(m);
     }
 
-    public void addTask(String name, String email, String status) {
-        Task t = new Task(UUID.randomUUID(), name, email, status);
+    public void addTask(String name, String email, String status, Integer estimatedTime) {
+        Task t = new Task(UUID.randomUUID(), name, email, status, estimatedTime);
         tasks.add(t);
         t.setProject(this);
     }
@@ -115,6 +116,11 @@ public class Project {
             return false;
         Project other = (Project) obj;
         return Objects.equals(projectId, other.projectId);
+    }
+
+    public void deleteTask(Task t) {
+        tasks.remove(t);
+        t.setProject(null);
     }
 
 }

@@ -7,6 +7,7 @@ import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,10 +193,12 @@ public class HappyTicketingApiApplicationTests {
 
         String taskName = "MakeDB";
         String status = "PARTIAL";
+        Integer estimatedTime = 2;
 
         JSONObject payload = new JSONObject();
         payload.put("name", taskName);
         payload.put("status", status);
+        payload.put("estimatedTime", estimatedTime);
 
         mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks")
                 .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
@@ -203,6 +206,7 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
+                .andExpect(jsonPath("$.tasks[:1].estimatedTime", hasItem(estimatedTime)))
                 .andExpect(jsonPath("$.tasks[:1].projectId", hasItem(p.getId().intValue())))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
@@ -247,7 +251,7 @@ public class HappyTicketingApiApplicationTests {
         Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
         User u2 = new User("pofire@example.com", "auth0|1234");
-        Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT");
+        Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT", 4);
         p.addMember(u1, "OWNER");
         p.addMember(u2, "MEMBER");
         p.addTask(t);
@@ -259,6 +263,7 @@ public class HappyTicketingApiApplicationTests {
         payload.put("status", "TO IMPLEMENT");
         payload.put("name", t.getName());
         payload.put("id", t.getId());
+        payload.put("estimatedTime", 3);
 
         String id = t.getId();
 
@@ -267,6 +272,7 @@ public class HappyTicketingApiApplicationTests {
                 .content(payload.toString())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(id))).andExpect(jsonPath("$.name", is(t.getName())))
                 .andExpect(jsonPath("$.status", is(t.getStatus())))
+                .andExpect(jsonPath("$.estimatedTime", is(3)))
                 .andExpect(jsonPath("$.assignedTo", is(u2.getEmail())));
     }
 

@@ -10,20 +10,24 @@ import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.requests.AddMemberRequest;
 import com.cituojt.happyTicketingApi.requests.CreateProjectRequest;
 import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
+import com.cituojt.happyTicketingApi.requests.DeleteTaskRequest;
 import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
 import com.cituojt.happyTicketingApi.responses.projects.UserJSON;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.collections4.map.SingletonMap;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -116,14 +120,15 @@ public class ProjectsController {
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
             User u = userOrNull.get();
             Project p = projectOrNull.get();
-            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus());
+            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus(),
+                    body.getEstimatedTime());
 
             p.addTask(t);
 
             projectRepo.save(p);
 
             TaskJSON taskAddedPayload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                    t.getAssignedTo(), t.getStatus());
+                    t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
 
             emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
@@ -177,9 +182,10 @@ public class ProjectsController {
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
+                t.setEstimatedTime(body.getEstimatedTime());
                 projectRepo.save(p);
                 TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                        t.getAssignedTo(), t.getStatus());
+                        t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
                 emitter.emit(p.getChannelName(), "task-updated", payload);
                 return ResponseEntity.status(200).body(payload);
             } else
@@ -187,6 +193,33 @@ public class ProjectsController {
         } else
             return ResponseEntity.status(403).build();
     }
+
+    @DeleteMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
+    public ResponseEntity deleteTask(@PathVariable("id") long id,
+            @RequestBody DeleteTaskRequest body) {
+
+        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+
+        if (projectOrNull.isPresent()) {
+            Project p = projectOrNull.get();
+            Optional<Task> taskOrNull = p.getTaskbyTaskId(body.getId());
+
+            if (taskOrNull.isPresent()) {
+                Task t = taskOrNull.get();
+                p.deleteTask(t);
+                projectRepo.save(p);
+
+                emitter.emit(p.getChannelName(), "task-deleted",
+                        Collections.singletonMap("id", t.getId()));
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(403).build();
+            }
+        } else {
+            return ResponseEntity.status(403).build();
+        }
+    }
+
 
     private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
         List<ProjectDetailsJSON> jsonResponse = new ArrayList<>();

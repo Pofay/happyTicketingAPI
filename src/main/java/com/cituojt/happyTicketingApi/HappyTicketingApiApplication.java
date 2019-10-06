@@ -44,10 +44,10 @@ public class HappyTicketingApiApplication {
             p2.addMember(u, "MEMBER");
 
 
-            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
-            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT");
-            p.addTask("A Really Bad Task", u.getEmail(), "PARTIAL");
-            p.addTask("A Really Great Task", u.getEmail(), "COMPLETE");
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT", 2);
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT", 2);
+            p.addTask("A Really Bad Task", u.getEmail(), "PARTIAL", 3);
+            p.addTask("A Really Great Task", u.getEmail(), "COMPLETE", 4);
 
             projectRepo.saveAll(Arrays.asList(p, p2));
             userRepo.saveAll(Arrays.asList(u, u2, u3, u4));

@@ -28,15 +28,26 @@ public class Task {
 
     private String status;
 
+    private Integer estimatedTime;
+
     public Task() {
 
     }
 
-    public Task(UUID id, String name, String assignedTo, String status) {
+    public Task(UUID id, String name, String assignedTo, String status, Integer estimatedTime) {
         this.id = id.toString();
         this.name = name;
         this.assignedTo = assignedTo;
         this.status = status;
+        this.setEstimatedTime(estimatedTime);
+    }
+
+    public Integer getEstimatedTime() {
+        return estimatedTime;
+    }
+
+    public void setEstimatedTime(Integer estimatedTime) {
+        this.estimatedTime = estimatedTime;
     }
 
     public String getId() {
