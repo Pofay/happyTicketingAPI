@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -115,6 +116,11 @@ public class Project {
             return false;
         Project other = (Project) obj;
         return Objects.equals(projectId, other.projectId);
+    }
+
+    public void deleteTask(Task t) {
+        tasks.remove(t);
+        t.setProject(null);
     }
 
 }

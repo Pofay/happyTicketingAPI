@@ -247,7 +247,6 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    @Ignore
     public void updating_a_task_requires_all_fields() throws Exception {
         Project p = new Project("Hotel Management", UUID.randomUUID());
         User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
@@ -264,6 +263,7 @@ public class HappyTicketingApiApplicationTests {
         payload.put("status", "TO IMPLEMENT");
         payload.put("name", t.getName());
         payload.put("id", t.getId());
+        payload.put("estimatedTime", 3);
 
         String id = t.getId();
 
@@ -272,6 +272,7 @@ public class HappyTicketingApiApplicationTests {
                 .content(payload.toString())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(id))).andExpect(jsonPath("$.name", is(t.getName())))
                 .andExpect(jsonPath("$.status", is(t.getStatus())))
+                .andExpect(jsonPath("$.estimatedTime", is(3)))
                 .andExpect(jsonPath("$.assignedTo", is(u2.getEmail())));
     }
 
