@@ -182,6 +182,7 @@ public class ProjectsController {
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
+                t.setEstimatedTime(body.getEstimatedTime());
                 projectRepo.save(p);
                 TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
                         t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
