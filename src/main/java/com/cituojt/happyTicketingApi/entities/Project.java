@@ -67,8 +67,8 @@ public class Project {
         members.add(m);
     }
 
-    public void addTask(String name, String email, String status) {
-        Task t = new Task(UUID.randomUUID(), name, email, status);
+    public void addTask(String name, String email, String status, Integer estimatedTime) {
+        Task t = new Task(UUID.randomUUID(), name, email, status, estimatedTime);
         tasks.add(t);
         t.setProject(this);
     }

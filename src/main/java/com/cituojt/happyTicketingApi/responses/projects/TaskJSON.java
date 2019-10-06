@@ -7,13 +7,24 @@ public class TaskJSON {
     private String assignedTo;
     private String status;
     private Long projectId;
+    private Integer estimatedTime;
 
-    public TaskJSON(String id, Long projectId, String name, String assignedTo, String status) {
+    public TaskJSON(String id, Long projectId, String name, String assignedTo, String status,
+            Integer estimatedTime) {
         this.setId(id);
         this.setProjectId(projectId);
         this.setName(name);
         this.setAssignedTo(assignedTo);
         this.setStatus(status);
+        this.setEstimatedTime(estimatedTime);
+    }
+
+    public Integer getEstimatedTime() {
+        return estimatedTime;
+    }
+
+    public void setEstimatedTime(Integer estimatedTime) {
+        this.estimatedTime = estimatedTime;
     }
 
     public void setProjectId(Long projectId) {

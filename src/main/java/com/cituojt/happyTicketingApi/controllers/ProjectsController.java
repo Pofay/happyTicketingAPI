@@ -116,14 +116,15 @@ public class ProjectsController {
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
             User u = userOrNull.get();
             Project p = projectOrNull.get();
-            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus());
+            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus(),
+                    body.getEstimatedTime());
 
             p.addTask(t);
 
             projectRepo.save(p);
 
             TaskJSON taskAddedPayload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                    t.getAssignedTo(), t.getStatus());
+                    t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
 
             emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
@@ -179,7 +180,7 @@ public class ProjectsController {
                 t.setStatus(body.getStatus());
                 projectRepo.save(p);
                 TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                        t.getAssignedTo(), t.getStatus());
+                        t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
                 emitter.emit(p.getChannelName(), "task-updated", payload);
                 return ResponseEntity.status(200).body(payload);
             } else
