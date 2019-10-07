@@ -12,6 +12,7 @@ import com.cituojt.happyTicketingApi.requests.CreateProjectRequest;
 import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
 import com.cituojt.happyTicketingApi.requests.DeleteTaskRequest;
 import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
+import com.cituojt.happyTicketingApi.responses.projects.DeletedTaskJSON;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
@@ -209,8 +210,10 @@ public class ProjectsController {
                 p.deleteTask(t);
                 projectRepo.save(p);
 
-                emitter.emit(p.getChannelName(), "task-deleted",
-                        Collections.singletonMap("id", t.getId()));
+                DeletedTaskJSON json = new DeletedTaskJSON(t.getId(), p.getId());
+
+                emitter.emit(p.getChannelName(), "task-deleted", json);
+
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.status(403).build();
