@@ -14,7 +14,23 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>happyTicketingApi</name>
     <description>Spring based RESTFUL backend for happy ticketing.</description>
-
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <activatedProperties>dev</activatedProperties>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <activatedProperties>prod</activatedProperties>
+            </properties>
+        </profile>
+    </profiles>
     <properties>
         <java.version>11</java.version>
     </properties>
