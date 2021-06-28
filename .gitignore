@@ -31,13 +31,10 @@ build/
 .vscode/
 
 
-<<<<<<< HEAD
 ### Application Config
 application.properties
 application-dev.properties
 application-prod.properties
-=======
->>>>>>> master
 ### Test specific properties
 secrets.properties
 
