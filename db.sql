@@ -1,27 +1,26 @@
-CREATE TABLE USER (
-    BIGINT id PRIMARY KEY SERIAL 
-    VARCHAR(255) email,
-    VARCHAR(255) oauthId
-)
+CREATE TABLE USERS (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255),
+    oauthId VARCHAR(255) 
+);
 
 CREATE TABLE TASK(
-    VARCHAR(255) id,
-    BIGINT projectId,
-    VARCHAR(255) taskName,
-    VARCHAR(255) taskStatus,
-    INT estimatedTime
-)
+    id VARCHAR(255),
+    projectId BIGINT,
+    taskName VARCHAR(255),
+    taskStatus VARCHAR(255),
+    estimatedTime INT 
+);
 
 CREATE TABLE PROJECT_MEMBER(
-    BIGINT userId,
-    BIGINT projectId,
-    VARCHAR(255) memberRole,
-    VARCHAR(255) memberStatus
-)
+    userId BIGINT ,
+    projectId BIGINT,
+    memberRole VARCHAR(255),
+    memberStatus VARCHAR(255) 
+);
 
 CREATE TABLE PROJECT(
-    BIGINT projectId,
-    VARCHAR(255) projectName,
-    VARCHAR(255) channelId
-)
-
+    projectId SERIAL,
+    projectName VARCHAR(255),
+    channelId VARCHAR(255) 
+);
