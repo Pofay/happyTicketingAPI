@@ -15,4 +15,46 @@ public class HappyTicketingApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(HappyTicketingApiApplication.class, args);
     }
+<<<<<<< HEAD
+=======
+
+   /*  @Bean
+    public CommandLineRunner demo(UserRepository userRepo, ProjectRepository projectRepo) {
+
+        return (args) -> {
+            projectRepo.deleteAll();
+            userRepo.deleteAll();
+
+            User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+            User u2 = new User("pofire@example.com", "auth0|123");
+            User u3 = new User("some@example.com", "auth0|456");
+            User u4 = new User("exuberant@example.com", "auth0|12345");
+
+            Project p = new Project("Watsup", UUID.randomUUID());
+            Project p2 = new Project("Cool Whip", UUID.randomUUID());
+            p.addMember(u, "OWNER");
+            p.addMember(u2, "MEMBER");
+            p2.addMember(u2, "OWNER");
+            p2.addMember(u, "MEMBER");
+
+
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT", 2);
+            p.addTask("A Really Good Task", u.getEmail(), "TO IMPLEMENT", 2);
+            p.addTask("A Really Bad Task", u.getEmail(), "PARTIAL", 3);
+            p.addTask("A Really Great Task", u.getEmail(), "COMPLETE", 4);
+
+            projectRepo.saveAll(Arrays.asList(p, p2));
+            userRepo.saveAll(Arrays.asList(u, u2, u3, u4));
+
+            Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
+
+            for (Project pr : projects) {
+                System.out.println("Project Name: " + pr.getName());
+                System.out.println("Member Count: " + pr.getMembers().size());
+            }
+        }; 
+
+    }*/
+
+>>>>>>> master
 }
