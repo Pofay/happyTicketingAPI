@@ -34,5 +34,8 @@ build/
 ### Test specific properties
 secrets.properties
 
+### pusher properties
+pusher.properties
+
 
 
