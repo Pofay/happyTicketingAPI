@@ -24,7 +24,7 @@ public class HappyTicketingApiApplication {
         SpringApplication.run(HappyTicketingApiApplication.class, args);
     }
 
-    @Bean
+   /*  @Bean
     public CommandLineRunner demo(UserRepository userRepo, ProjectRepository projectRepo) {
 
         return (args) -> {
@@ -58,8 +58,8 @@ public class HappyTicketingApiApplication {
                 System.out.println("Project Name: " + pr.getName());
                 System.out.println("Member Count: " + pr.getMembers().size());
             }
-        };
+        }; 
 
-    }
+    }*/
 
 }
