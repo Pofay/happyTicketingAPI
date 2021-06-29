@@ -5,18 +5,14 @@ import com.cituojt.happyTicketingApi.entities.Task;
 import com.cituojt.happyTicketingApi.entities.User;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -33,9 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@Import(MockConfiguration.class)
 public class HappyTicketingApiApplicationTests {
 
     @Autowired
@@ -63,7 +57,7 @@ public class HappyTicketingApiApplicationTests {
     @Autowired
     private WebApplicationContext context;
 
-    @Before
+    @BeforeEach
     public void setup_authentication_and_context() {
         userRepo.deleteAll();
         projectRepo.deleteAll();
@@ -73,7 +67,7 @@ public class HappyTicketingApiApplicationTests {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
 
-    @After
+    @AfterEach
     public void delete_all_records_and_close_event_loop() {
         userRepo.deleteAll();
         projectRepo.deleteAll();
@@ -81,22 +75,19 @@ public class HappyTicketingApiApplicationTests {
     }
 
     @Test
-    public void authenticated_user_with_user_creds_is_allowed_access_to_projects()
-            throws Exception {
+    public void authenticated_user_with_user_creds_is_allowed_access_to_projects() throws Exception {
         User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
-                .andExpect(status().isOk());
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andExpect(status().isOk());
     }
 
     @Test
     public void authenticated_user_with_no_user_creds_access_not_allowed() throws Exception {
         String errorMessage = "access_token user is not yet registered or doesn't exist.";
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
-                .andExpect(status().isForbidden())
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error", is(equalTo(errorMessage))));
     }
 
@@ -113,8 +104,7 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.saveAll(Arrays.asList(p1, p2));
         userRepo.save(u);
 
-        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken))
-                .andDo(print())
+        mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer-Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.data[:1].tasks", is(notNullValue())))
@@ -138,8 +128,7 @@ public class HappyTicketingApiApplicationTests {
         String channelName = String.format("%s@%s", channelId, projectName.replace(' ', '-'));
 
         mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
-                .andExpect(jsonPath("$.name", equalTo(p.getName())))
-                .andExpect(jsonPath("$.id", equalTo(expectedId)))
+                .andExpect(jsonPath("$.name", equalTo(p.getName()))).andExpect(jsonPath("$.id", equalTo(expectedId)))
                 .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", equalTo(channelName)))
@@ -160,8 +149,7 @@ public class HappyTicketingApiApplicationTests {
 
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
                 .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
-                .andExpect(jsonPath("$.id", is(notNullValue())))
-                .andExpect(jsonPath("$.name", is(projectName)))
+                .andExpect(jsonPath("$.id", is(notNullValue()))).andExpect(jsonPath("$.name", is(projectName)))
                 .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", is(notNullValue())))
@@ -178,8 +166,7 @@ public class HappyTicketingApiApplicationTests {
         payload.put("name", projectName);
 
         mvc.perform(post("/api/v1/projects/").header("Authorization", this.bearerToken)
-                .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
-                .andExpect(status().isBadRequest())
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is(errorMessage)));
     }
 
@@ -200,9 +187,8 @@ public class HappyTicketingApiApplicationTests {
         payload.put("status", status);
         payload.put("estimatedTime", estimatedTime);
 
-        mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks")
-                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
-                .content(payload.toString())).andExpect(status().isCreated())
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks").header("Authorization", this.bearerToken)
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
@@ -223,10 +209,9 @@ public class HappyTicketingApiApplicationTests {
         JSONObject payload = new JSONObject();
         payload.put("memberEmail", u2.getEmail());
 
-        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members")
-                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
-                .content(payload.toString())).andDo(print()).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.members[:2].email", hasItem(u2.getEmail())));
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members").header("Authorization", this.bearerToken)
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andDo(print())
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.members[:2].email", hasItem(u2.getEmail())));
     }
 
     @Test
@@ -240,10 +225,9 @@ public class HappyTicketingApiApplicationTests {
         JSONObject payload = new JSONObject();
         payload.put("memberEmail", "notExisting@example.com");
 
-        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members")
-                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
-                .content(payload.toString())).andExpect(status().isForbidden()).andExpect(
-                        jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
+        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members").header("Authorization", this.bearerToken)
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
     }
 
     @Test
@@ -267,20 +251,16 @@ public class HappyTicketingApiApplicationTests {
 
         String id = t.getId();
 
-        mvc.perform(put("/api/v1/projects/" + p.getId() + "/tasks")
-                .header("Authorization", this.bearerToken).contentType(MediaType.APPLICATION_JSON)
-                .content(payload.toString())).andExpect(status().isOk())
+        mvc.perform(put("/api/v1/projects/" + p.getId() + "/tasks").header("Authorization", this.bearerToken)
+                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(id))).andExpect(jsonPath("$.name", is(t.getName())))
-                .andExpect(jsonPath("$.status", is(t.getStatus())))
-                .andExpect(jsonPath("$.estimatedTime", is(3)))
+                .andExpect(jsonPath("$.status", is(t.getStatus()))).andExpect(jsonPath("$.estimatedTime", is(3)))
                 .andExpect(jsonPath("$.assignedTo", is(u2.getEmail())));
     }
 
     public String requestBearerTokenFromAuth0() {
         String body = Auth0RequestBuilder.create().withApiAudience(audience).withClientId(clientId)
-                .withClientSecret(clientSecret)
-                .withUsernameAndPassword("pofay@example.com", "!pofay123").build();
-
+                .withClientSecret(clientSecret).withUsernameAndPassword("pofay@example.com", "!pofay123").build();
 
         HttpResponse<JsonNode> response = Unirest.post(String.format("%soauth/token", issuer))
                 .header("content-type", "application/x-www-form-urlencoded").body(body).asJson();
