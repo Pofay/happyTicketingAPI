@@ -11,11 +11,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProjectRepository extends CrudRepository<Project, ProjectMemberId> {
 
-    @Query(value = "SELECT project_id, name, channel_id from project p join project_member m join user u WHERE u.id = :userId AND m.user_id= :userId AND m.project_project_id= p.project_id",
-            nativeQuery = true)
+    @Query(value = "SELECT projectId, projectName, channelId from project p join project_member m join users u WHERE u.id = :userId AND m.userId= :userId AND m.projectId = p.projectId", nativeQuery = true)
     public Iterable<Project> getProjectsForUser(@Param("userId") Long userId);
 
-    @Query(value = "SELECT * from project p where p.project_id = :projectId", nativeQuery = true)
+    @Query(value = "SELECT * from project p where p.projectId = :projectId", nativeQuery = true)
     public Optional<Project> findById(@Param("projectId") Long projectId);
 
 }

@@ -5,8 +5,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -22,18 +22,16 @@ public class Project {
     @GeneratedValue
     private Long projectId;
 
+    @Column(name = "projectName")
     private String name;
 
     private String channelId;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMember> members = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Task> tasks = new HashSet<>();
-
 
     public Project() {
     }

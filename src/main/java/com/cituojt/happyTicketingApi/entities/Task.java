@@ -17,9 +17,8 @@ public class Task {
     @Column(name = "id", nullable = false)
     private String id;
 
-
     @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "projectId", nullable = false)
     private Project project;
 
     private String name;
@@ -62,11 +61,9 @@ public class Task {
         return status;
     }
 
-
     public void setStatus(String status) {
         this.status = status;
     }
-
 
     public String getAssignedTo() {
         return assignedTo;

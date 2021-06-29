@@ -77,7 +77,6 @@ public class ProjectMember {
         this.role = role;
     }
 
-
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
