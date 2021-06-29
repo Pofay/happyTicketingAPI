@@ -6,11 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 
-import jdk.jfr.Percentage;
-
 @SpringBootApplication
 @PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:auth0.properties"),
-        @PropertySource("classpath:pusher.properties") })
+        @PropertySource("classpath:pusher.properties"), @PropertySource("classpath:secrets.properties") })
 @EnableAutoConfiguration
 public class HappyTicketingApiApplication {
 

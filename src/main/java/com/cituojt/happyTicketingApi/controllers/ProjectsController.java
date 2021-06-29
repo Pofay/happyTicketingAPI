@@ -54,7 +54,7 @@ public class ProjectsController {
     public ResponseEntity getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
@@ -91,7 +91,7 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
@@ -114,7 +114,7 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {

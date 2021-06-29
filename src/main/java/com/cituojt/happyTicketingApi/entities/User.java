@@ -17,7 +17,7 @@ public class User {
     private Long id;
 
     @Column(name = "oauthId")
-    private String oAuthId;
+    private String oauthId;
 
     private String email;
 
@@ -25,7 +25,7 @@ public class User {
     }
 
     public User(String email, String oAuthId) {
-        this.oAuthId = oAuthId;
+        this.oauthId = oAuthId;
         this.email = email;
     }
 
@@ -42,11 +42,11 @@ public class User {
     }
 
     public String getOAuthId() {
-        return oAuthId;
+        return oauthId;
     }
 
     public void setOAuthId(String oAuthId) {
-        this.oAuthId = oAuthId;
+        this.oauthId = oAuthId;
     }
 
     @Override
