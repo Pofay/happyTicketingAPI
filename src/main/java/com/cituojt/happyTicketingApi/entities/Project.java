@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -19,12 +20,14 @@ import javax.persistence.Table;
 public class Project {
 
     @Id
-    @GeneratedValue
-    private Long projectId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "project_id")
+    private Long id;
 
-    @Column(name = "projectName")
+    @Column(name = "project_name")
     private String name;
 
+    @Column(name = "channel_id")
     private String channelId;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -42,7 +45,7 @@ public class Project {
     }
 
     public Long getId() {
-        return projectId;
+        return id;
     }
 
     public String getName() {
@@ -101,7 +104,7 @@ public class Project {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(projectId);
+        return Objects.hashCode(id);
     }
 
     @Override
@@ -113,7 +116,7 @@ public class Project {
         if (getClass() != obj.getClass())
             return false;
         Project other = (Project) obj;
-        return Objects.equals(projectId, other.projectId);
+        return Objects.equals(id, other.id);
     }
 
     public void deleteTask(Task t) {

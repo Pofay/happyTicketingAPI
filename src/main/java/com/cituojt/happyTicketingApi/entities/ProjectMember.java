@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
@@ -17,17 +18,17 @@ public class ProjectMember {
     private ProjectMemberId id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("userId")
+    @MapsId(value = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("projectId")
+    @MapsId(value = "project_id")
     private Project project;
 
-    @Column(name = "role")
+    @Column(name = "member_role")
     private String role;
 
-    @Column(name = "status")
+    @Column(name = "member_status")
     private String status;
 
     public ProjectMember() {

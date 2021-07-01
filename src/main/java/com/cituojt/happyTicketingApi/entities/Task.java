@@ -14,17 +14,19 @@ import javax.persistence.Table;
 public class Task {
 
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "task_id", nullable = false)
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "projectId", nullable = false)
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @Column(name = "task_name")
     private String name;
 
     private String assignedTo;
 
+    @Column(name = "task_status")
     private String status;
 
     private Integer estimatedTime;
