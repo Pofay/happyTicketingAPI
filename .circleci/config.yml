@@ -16,6 +16,11 @@ jobs: # a collection of steps
             - checkout # check out source code to working directory
             - run: sudo apt-get update
             - run: sudo apt-get install postgresql-client-9.6
+            - run:
+                  name: Generate secrets.properties file
+                  command: |
+                      cd ~/happyTicketingAPI/src/main/resources
+                      printf "auth0.clientId=$AUTH0_CLIENT_ID\nauth0.clientSecret=$AUTH0_CLIENT_SECRET" > secrets.properties
 
             - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
                   # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
