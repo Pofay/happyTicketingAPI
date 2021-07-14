@@ -1,7 +1,5 @@
 package com.cituojt.happyTicketingApi.requests;
 
-import org.springframework.lang.Nullable;
-
 public class UpdateTaskRequest {
 
     private String id;
@@ -13,8 +11,7 @@ public class UpdateTaskRequest {
     public UpdateTaskRequest() {
     }
 
-    public UpdateTaskRequest(String id, String name, String assignedTo, String status,
-            Integer estimatedTime) {
+    public UpdateTaskRequest(String id, String name, String assignedTo, String status, Integer estimatedTime) {
         this.setId(id);
         this.setName(name);
         this.setAssignedTo(assignedTo);
@@ -29,7 +26,6 @@ public class UpdateTaskRequest {
     public void setEstimatedTime(Integer estimatedTime) {
         this.estimatedTime = estimatedTime;
     }
-
 
     public String getId() {
         return id;
