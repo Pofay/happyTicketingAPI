@@ -12,6 +12,7 @@ import com.cituojt.happyTicketingApi.requests.CreateProjectRequest;
 import com.cituojt.happyTicketingApi.requests.CreateTaskRequest;
 import com.cituojt.happyTicketingApi.requests.DeleteTaskRequest;
 import com.cituojt.happyTicketingApi.requests.UpdateTaskRequest;
+import com.cituojt.happyTicketingApi.responses.projects.DeletedTaskJSON;
 import com.cituojt.happyTicketingApi.responses.projects.IndexResponse;
 import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
@@ -43,8 +44,7 @@ public class ProjectsController {
     private RealtimeEmitter emitter;
 
     @Autowired
-    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo,
-            RealtimeEmitter emitter) {
+    public ProjectsController(UserRepository userRepo, ProjectRepository projectRepo, RealtimeEmitter emitter) {
         this.userRepo = userRepo;
         this.emitter = emitter;
         this.projectRepo = projectRepo;
@@ -54,7 +54,7 @@ public class ProjectsController {
     public ResponseEntity getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
@@ -80,8 +80,8 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects", produces = "application/json")
-    public ResponseEntity createProject(@RequestBody CreateProjectRequest body,
-            HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity createProject(@RequestBody CreateProjectRequest body, HttpServletRequest req,
+            HttpServletResponse res) {
 
         if (body.getName().isEmpty()) {
             JSONObject payload = new JSONObject();
@@ -91,13 +91,12 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
-            Project p = new Project(body.getName(), UUID.randomUUID());
+            var p = projectRepo.save(new Project(body.getName(), UUID.randomUUID()));
             p.addMember(u, "OWNER");
-
             projectRepo.save(p);
 
             return ResponseMapper.mapProjectToJson(p, 201);
@@ -109,12 +108,12 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity addTaskToProject(@PathVariable("id") long id,
-            @RequestBody CreateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity addTaskToProject(@PathVariable("id") long id, @RequestBody CreateTaskRequest body,
+            HttpServletRequest req, HttpServletResponse res) {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOAuthId(oauthId);
+        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
@@ -127,8 +126,8 @@ public class ProjectsController {
 
             projectRepo.save(p);
 
-            TaskJSON taskAddedPayload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                    t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
+            TaskJSON taskAddedPayload = new TaskJSON(t.getId(), p.getId(), t.getName(), t.getAssignedTo(),
+                    t.getStatus(), t.getEstimatedTime());
 
             emitter.emit(p.getChannelName(), "task-added", taskAddedPayload);
 
@@ -139,8 +138,8 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/members", produces = "application/json")
-    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body,
-            @PathVariable("id") long id, HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body, @PathVariable("id") long id,
+            HttpServletRequest req, HttpServletResponse res) {
 
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
@@ -168,8 +167,8 @@ public class ProjectsController {
     }
 
     @PutMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity updateTask(@PathVariable("id") long id,
-            @RequestBody UpdateTaskRequest body, HttpServletRequest req, HttpServletResponse res) {
+    public ResponseEntity updateTask(@PathVariable("id") long id, @RequestBody UpdateTaskRequest body,
+            HttpServletRequest req, HttpServletResponse res) {
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
         if (projectOrNull.isPresent()) {
@@ -184,8 +183,8 @@ public class ProjectsController {
                 t.setStatus(body.getStatus());
                 t.setEstimatedTime(body.getEstimatedTime());
                 projectRepo.save(p);
-                TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(),
-                        t.getAssignedTo(), t.getStatus(), t.getEstimatedTime());
+                TaskJSON payload = new TaskJSON(t.getId(), p.getId(), t.getName(), t.getAssignedTo(), t.getStatus(),
+                        t.getEstimatedTime());
                 emitter.emit(p.getChannelName(), "task-updated", payload);
                 return ResponseEntity.status(200).body(payload);
             } else
@@ -195,8 +194,7 @@ public class ProjectsController {
     }
 
     @DeleteMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity deleteTask(@PathVariable("id") long id,
-            @RequestBody DeleteTaskRequest body) {
+    public ResponseEntity deleteTask(@PathVariable("id") long id, @RequestBody DeleteTaskRequest body) {
 
         Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
 
@@ -209,8 +207,10 @@ public class ProjectsController {
                 p.deleteTask(t);
                 projectRepo.save(p);
 
-                emitter.emit(p.getChannelName(), "task-deleted",
-                        Collections.singletonMap("id", t.getId()));
+                DeletedTaskJSON json = new DeletedTaskJSON(t.getId(), p.getId());
+
+                emitter.emit(p.getChannelName(), "task-deleted", json);
+
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.status(403).build();
@@ -220,12 +220,11 @@ public class ProjectsController {
         }
     }
 
-
     private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
         List<ProjectDetailsJSON> jsonResponse = new ArrayList<>();
         for (Project p : projects) {
-            ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(),
-                    p.getTasks(), p.getChannelName());
+            ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks(),
+                    p.getChannelName());
             jsonResponse.add(json);
         }
 

@@ -31,12 +31,11 @@ build/
 .vscode/
 
 
-### Application Config
-application.properties
-application.dev.properties
-application.prod.properties
 ### Test specific properties
 secrets.properties
+
+### pusher properties
+pusher.properties
 
 
 

@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.Table;
@@ -17,17 +18,19 @@ public class ProjectMember {
     private ProjectMemberId id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("userId")
+    @JoinColumn(name = "user_user_id")
+    @MapsId("user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId("projectId")
+    @JoinColumn(name = "project_project_id")
+    @MapsId("project_id")
     private Project project;
 
-    @Column(name = "role")
+    @Column(name = "member_role")
     private String role;
 
-    @Column(name = "status")
+    @Column(name = "member_status")
     private String status;
 
     public ProjectMember() {
@@ -69,6 +72,14 @@ public class ProjectMember {
         return id;
     }
 
+    public void setProjectMemberId(ProjectMemberId id) {
+        this.id = id;
+    }
+
+    public void setProjectMemberId(Long projectId, Long userId) {
+        this.id = new ProjectMemberId(projectId, userId);
+    }
+
     public String getRole() {
         return role;
     }
@@ -76,7 +87,6 @@ public class ProjectMember {
     public void setRole(String role) {
         this.role = role;
     }
-
 
     @Override
     public int hashCode() {

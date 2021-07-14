@@ -8,10 +8,10 @@ import javax.persistence.Embeddable;
 @Embeddable
 public class ProjectMemberId implements Serializable {
 
-    @Column(name = "project_id")
+    @Column(name = "project_project_id")
     private Long projectId;
 
-    @Column(name = "user_id")
+    @Column(name = "user_user_id")
     private Long userId;
 
     public ProjectMemberId() {

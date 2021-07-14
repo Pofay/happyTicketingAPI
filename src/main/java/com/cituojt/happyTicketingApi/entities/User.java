@@ -1,28 +1,41 @@
 package com.cituojt.happyTicketingApi.entities;
 
 import java.util.Objects;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "user")
+@Table(name = "project_user")
 public class User {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(generator = "user_id_generator")
+    @SequenceGenerator(name = "user_id_generator", sequenceName = "project_user_user_id_seq", allocationSize = 1)
+    @Column(name = "user_id")
     private Long id;
 
-    private String oAuthId;
+    private String oauthId;
 
     private String email;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
+    private Set<ProjectMember> memberShips;
 
     public User() {
     }
 
     public User(String email, String oAuthId) {
-        this.oAuthId = oAuthId;
+        this.oauthId = oAuthId;
         this.email = email;
     }
 
@@ -39,11 +52,11 @@ public class User {
     }
 
     public String getOAuthId() {
-        return oAuthId;
+        return oauthId;
     }
 
     public void setOAuthId(String oAuthId) {
-        this.oAuthId = oAuthId;
+        this.oauthId = oAuthId;
     }
 
     @Override
@@ -62,4 +75,9 @@ public class User {
         User other = (User) obj;
         return Objects.equals(id, other.id);
     }
+
+    public Iterable<ProjectMember> getMemberships() {
+        return memberShips;
+    }
+
 }

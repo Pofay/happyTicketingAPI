@@ -5,13 +5,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -19,21 +21,22 @@ import javax.persistence.Table;
 public class Project {
 
     @Id
-    @GeneratedValue
-    private Long projectId;
+    @Column(name = "project_id")
+    @GeneratedValue(generator = "project_id_generator")
+    @SequenceGenerator(name = "project_id_generator", sequenceName = "project_project_id_seq", allocationSize = 1)
+    private Long id;
 
+    @Column(name = "project_name")
     private String name;
 
+    @Column(name = "channel_id")
     private String channelId;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMember> members = new HashSet<>();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL,
-            orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Task> tasks = new HashSet<>();
-
 
     public Project() {
     }
@@ -44,7 +47,7 @@ public class Project {
     }
 
     public Long getId() {
-        return projectId;
+        return id;
     }
 
     public String getName() {
@@ -103,7 +106,7 @@ public class Project {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(projectId);
+        return Objects.hashCode(id);
     }
 
     @Override
@@ -115,7 +118,7 @@ public class Project {
         if (getClass() != obj.getClass())
             return false;
         Project other = (Project) obj;
-        return Objects.equals(projectId, other.projectId);
+        return Objects.equals(id, other.id);
     }
 
     public void deleteTask(Task t) {
