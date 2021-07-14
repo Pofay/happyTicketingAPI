@@ -95,9 +95,8 @@ public class ProjectsController {
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
-            Project p = new Project(body.getName(), UUID.randomUUID());
+            var p = projectRepo.save(new Project(body.getName(), UUID.randomUUID()));
             p.addMember(u, "OWNER");
-
             projectRepo.save(p);
 
             return ResponseMapper.mapProjectToJson(p, 201);

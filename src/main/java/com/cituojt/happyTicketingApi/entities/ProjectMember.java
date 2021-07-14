@@ -18,11 +18,13 @@ public class ProjectMember {
     private ProjectMemberId id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId(value = "user_id")
+    @JoinColumn(name = "user_user_id")
+    @MapsId("user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @MapsId(value = "project_id")
+    @JoinColumn(name = "project_project_id")
+    @MapsId("project_id")
     private Project project;
 
     @Column(name = "member_role")
@@ -68,6 +70,14 @@ public class ProjectMember {
 
     public ProjectMemberId getId() {
         return id;
+    }
+
+    public void setProjectMemberId(ProjectMemberId id) {
+        this.id = id;
+    }
+
+    public void setProjectMemberId(Long projectId, Long userId) {
+        this.id = new ProjectMemberId(projectId, userId);
     }
 
     public String getRole() {

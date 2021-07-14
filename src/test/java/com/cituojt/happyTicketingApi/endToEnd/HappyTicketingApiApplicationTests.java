@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -63,6 +65,7 @@ public class HappyTicketingApiApplicationTests {
         projectRepo.deleteAll();
 
         this.bearerToken = this.requestBearerTokenFromAuth0();
+        System.out.println(this.clientId.toString());
 
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
     }
@@ -71,7 +74,9 @@ public class HappyTicketingApiApplicationTests {
     public void delete_all_records_and_close_event_loop() {
         userRepo.deleteAll();
         projectRepo.deleteAll();
+
         Unirest.shutDown();
+        this.bearerToken = "";
     }
 
     @Test
@@ -93,56 +98,47 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
-        projectRepo.deleteAll();
-        Project p1 = new Project("Customer Satisfaction", UUID.randomUUID());
-        Project p2 = new Project("Scrabble Trainer", UUID.randomUUID());
-        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        var savedProject = projectRepo.save(new Project("Customer Satisfaction", UUID.randomUUID()));
+        var savedUser = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
-        p1.addMember(u, "OWNER");
-        p2.addMember(u, "OWNER");
-
-        projectRepo.saveAll(Arrays.asList(p1, p2));
-        userRepo.save(u);
+        savedProject.addMember(savedUser, "OWNER");
+        projectRepo.save(savedProject);
 
         mvc.perform(get("/api/v1/projects").header("Authorization", this.bearerToken)).andDo(print())
                 .andExpect(jsonPath("$.data[:1].name", hasItem("Customer-Satisfaction")))
                 .andExpect(jsonPath("$.data[:1].members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.data[:1].tasks", is(notNullValue())))
-                .andExpect(jsonPath("$.data[:1].channelName", hasItem(p1.getChannelName())))
-                .andExpect(jsonPath("$.data[:2].name", hasItem("Scrabble-Trainer")));
+                .andExpect(jsonPath("$.data[:1].channelName", hasItem(savedProject.getChannelName())));
     }
 
     @Test
     public void created_projects_contains_members_tasks_name_and_channelName() throws Exception {
         UUID channelId = UUID.randomUUID();
         String projectName = "Hotel Management";
-        Project p = new Project(projectName, channelId);
-        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        var savedProject = projectRepo.save(new Project(projectName, channelId));
+        var savedUser = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
-        p.addMember(u, "OWNER");
+        savedProject.addMember(savedUser, "OWNER");
 
-        projectRepo.save(p);
-        userRepo.save(u);
+        projectRepo.save(savedProject);
 
-        int expectedId = Integer.parseInt(p.getId().toString());
+        int expectedId = Integer.parseInt(savedProject.getId().toString());
         String channelName = String.format("%s@%s", channelId, projectName.replace(' ', '-'));
 
-        mvc.perform(get("/api/v1/projects/" + p.getId()).header("Authorization", this.bearerToken))
-                .andExpect(jsonPath("$.name", equalTo(p.getName()))).andExpect(jsonPath("$.id", equalTo(expectedId)))
-                .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
+        mvc.perform(get("/api/v1/projects/" + savedProject.getId()).header("Authorization", this.bearerToken))
+                .andExpect(jsonPath("$.name", equalTo(savedProject.getName())))
+                .andExpect(jsonPath("$.id", equalTo(expectedId))).andExpect(jsonPath("$.tasks", iterableWithSize(0)))
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", equalTo(channelName)))
-                .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())));
+                .andExpect(jsonPath("$.members[:1].email", hasItem(savedUser.getEmail())));
     }
 
     @Test
     public void can_create_a_project_through_post() throws Exception {
         String projectName = "ProjectM";
-        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        var savedUser = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
-        userRepo.save(u);
-
-        int userId = Integer.parseInt(u.getId().toString());
+        int userId = Integer.parseInt(savedUser.getId().toString());
 
         JSONObject payload = new JSONObject();
         payload.put("name", projectName);
@@ -153,7 +149,7 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", is(notNullValue())))
-                .andExpect(jsonPath("$.members[:1].email", hasItem(u.getEmail())))
+                .andExpect(jsonPath("$.members[:1].email", hasItem(savedUser.getEmail())))
                 .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
     }
 
@@ -172,11 +168,10 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void adding_task_is_through_posting_to_specific_project() throws Exception {
-        Project p = new Project("Hotel Management", UUID.randomUUID());
-        User u = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        p.addMember(u, "OWNER");
-        projectRepo.save(p);
-        userRepo.save(u);
+        var initialProject = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        User u = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        initialProject.addMember(u, "OWNER");
+        var p = projectRepo.save(initialProject);
 
         String taskName = "MakeDB";
         String status = "PARTIAL";
@@ -199,12 +194,12 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void registered_emails_can_be_added_to_project_members() throws Exception {
-        Project p = new Project("Hotel Management", UUID.randomUUID());
-        User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        User u2 = new User("pofire@example.com", "auth0|123456");
-        p.addMember(u1, "OWNER");
-        projectRepo.save(p);
+        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var u2 = userRepo.save(new User("pofire@example.com", "auth0|123456"));
         userRepo.saveAll(Arrays.asList(u1, u2));
+        p.addMember(u1, "OWNER");
+        p = projectRepo.save(p);
 
         JSONObject payload = new JSONObject();
         payload.put("memberEmail", u2.getEmail());
@@ -216,11 +211,11 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void nonregistered_emails_are_not_allowed() throws Exception {
-        Project p = new Project("Hotel Management", UUID.randomUUID());
-        User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        p.addMember(u1, "OWNER");
-        projectRepo.save(p);
+        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         userRepo.save(u1);
+        p.addMember(u1, "OWNER");
+        p = projectRepo.save(p);
 
         JSONObject payload = new JSONObject();
         payload.put("memberEmail", "notExisting@example.com");
@@ -232,15 +227,14 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void updating_a_task_requires_all_fields() throws Exception {
-        Project p = new Project("Hotel Management", UUID.randomUUID());
-        User u1 = new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
-        User u2 = new User("pofire@example.com", "auth0|1234");
+        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo.save(new User("pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var u2 = userRepo.save(new User("pofire@example.com", "auth0|1234"));
         Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT", 4);
         p.addMember(u1, "OWNER");
         p.addMember(u2, "MEMBER");
         p.addTask(t);
-        projectRepo.save(p);
-        userRepo.saveAll(Arrays.asList(u1, u2));
+        p = projectRepo.save(p);
 
         JSONObject payload = new JSONObject();
         payload.put("assignedTo", u2.getEmail());
