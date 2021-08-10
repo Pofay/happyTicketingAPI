@@ -1,6 +1,8 @@
 package com.cituojt.happyTicketingApi.entities;
 
 import java.util.Objects;
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -76,7 +78,7 @@ public class ProjectMember {
         this.id = id;
     }
 
-    public void setProjectMemberId(Long projectId, Long userId) {
+    public void setProjectMemberId(Long projectId, UUID userId) {
         this.id = new ProjectMemberId(projectId, userId);
     }
 

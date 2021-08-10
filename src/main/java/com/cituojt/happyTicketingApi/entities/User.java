@@ -2,14 +2,13 @@ package com.cituojt.happyTicketingApi.entities;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -17,10 +16,9 @@ import javax.persistence.Table;
 public class User {
 
     @Id
-    @GeneratedValue(generator = "user_id_generator")
-    @SequenceGenerator(name = "user_id_generator", sequenceName = "project_user_user_id_seq", allocationSize = 1)
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
     @Column(name = "user_id")
-    private Long id;
+    private UUID id;
 
     private String oauthId;
 
@@ -32,7 +30,8 @@ public class User {
     public User() {
     }
 
-    public User(String email, String oAuthId) {
+    public User(UUID id, String email, String oAuthId) {
+        this.id = id;
         this.oauthId = oAuthId;
         this.email = email;
     }
@@ -45,7 +44,7 @@ public class User {
         this.email = email;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
