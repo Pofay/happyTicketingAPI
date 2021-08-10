@@ -18,13 +18,11 @@ import com.cituojt.happyTicketingApi.responses.projects.ProjectDetailsJSON;
 import com.cituojt.happyTicketingApi.responses.projects.TaskJSON;
 import com.cituojt.happyTicketingApi.responses.projects.UserJSON;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.collections4.map.SingletonMap;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -68,10 +66,10 @@ public class ProjectsController {
     }
 
     @GetMapping(value = "/api/v1/projects/{id}", produces = "application/json")
-    public ResponseEntity getProjectForUserById(@PathVariable("id") long id, HttpServletRequest req,
+    public ResponseEntity getProjectForUserById(@PathVariable("id") UUID id, HttpServletRequest req,
             HttpServletResponse res) throws Exception {
 
-        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+        Optional<Project> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
             return ResponseMapper.mapProjectToJson(projectOrNull.get(), 200);
@@ -95,7 +93,7 @@ public class ProjectsController {
 
         if (userOrNull.isPresent()) {
             User u = userOrNull.get();
-            var p = projectRepo.save(new Project(body.getName(), UUID.randomUUID()));
+            var p = projectRepo.save(new Project(UUID.randomUUID(), body.getName(), UUID.randomUUID()));
             p.addMember(u, "OWNER");
             projectRepo.save(p);
 
@@ -108,13 +106,13 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity addTaskToProject(@PathVariable("id") long id, @RequestBody CreateTaskRequest body,
+    public ResponseEntity addTaskToProject(@PathVariable("id") UUID id, @RequestBody CreateTaskRequest body,
             HttpServletRequest req, HttpServletResponse res) {
 
         String oauthId = getOauthIdFromRequest(req);
 
         Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
-        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+        Optional<Project> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
             User u = userOrNull.get();
@@ -138,10 +136,10 @@ public class ProjectsController {
     }
 
     @PostMapping(value = "/api/v1/projects/{id}/members", produces = "application/json")
-    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body, @PathVariable("id") long id,
+    public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body, @PathVariable("id") UUID id,
             HttpServletRequest req, HttpServletResponse res) {
 
-        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+        Optional<Project> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
             Project p = projectOrNull.get();
@@ -167,9 +165,9 @@ public class ProjectsController {
     }
 
     @PutMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity updateTask(@PathVariable("id") long id, @RequestBody UpdateTaskRequest body,
+    public ResponseEntity updateTask(@PathVariable("id") UUID id, @RequestBody UpdateTaskRequest body,
             HttpServletRequest req, HttpServletResponse res) {
-        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+        Optional<Project> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
             Project p = projectOrNull.get();
@@ -194,9 +192,9 @@ public class ProjectsController {
     }
 
     @DeleteMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
-    public ResponseEntity deleteTask(@PathVariable("id") long id, @RequestBody DeleteTaskRequest body) {
+    public ResponseEntity deleteTask(@PathVariable("id") UUID id, @RequestBody DeleteTaskRequest body) {
 
-        Optional<Project> projectOrNull = projectRepo.findById(Long.valueOf(id));
+        Optional<Project> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
             Project p = projectOrNull.get();

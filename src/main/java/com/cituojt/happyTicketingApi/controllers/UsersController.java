@@ -1,5 +1,7 @@
 package com.cituojt.happyTicketingApi.controllers;
 
+import java.util.UUID;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.cituojt.happyTicketingApi.entities.User;
@@ -26,7 +28,7 @@ public class UsersController {
     @PostMapping(value = "/api/v1/users", produces = "application/json")
     public ResponseEntity createUser(@RequestBody CreateUserRequest body, HttpServletRequest req,
             HttpServletResponse res) throws JSONException {
-        User u = new User(body.getEmail(), body.getUserId());
+        User u = new User(UUID.randomUUID(), body.getEmail(), body.getUserId());
 
         userRepo.save(u);
 

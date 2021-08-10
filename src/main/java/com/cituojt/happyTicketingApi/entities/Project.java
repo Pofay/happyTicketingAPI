@@ -10,7 +10,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -22,9 +21,8 @@ public class Project {
 
     @Id
     @Column(name = "project_id")
-    @GeneratedValue(generator = "project_id_generator")
-    @SequenceGenerator(name = "project_id_generator", sequenceName = "project_project_id_seq", allocationSize = 1)
-    private Long id;
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
+    private UUID id;
 
     @Column(name = "project_name")
     private String name;
@@ -41,12 +39,13 @@ public class Project {
     public Project() {
     }
 
-    public Project(String name, UUID channelId) {
+    public Project(UUID id, String name, UUID channelId) {
+        this.id = id;
         this.name = name.replace(' ', '-').replace(':', ';');
         this.channelId = channelId.toString();
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -56,6 +55,10 @@ public class Project {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public Set<ProjectMember> getMembers() {

@@ -2,6 +2,8 @@ package com.cituojt.happyTicketingApi.entities;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
@@ -9,24 +11,26 @@ import javax.persistence.Embeddable;
 public class ProjectMemberId implements Serializable {
 
     @Column(name = "project_project_id")
-    private Long projectId;
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
+    private UUID projectId;
 
     @Column(name = "user_user_id")
-    private Long userId;
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
+    private UUID userId;
 
     public ProjectMemberId() {
     }
 
-    public ProjectMemberId(Long projectId, Long userId) {
-        this.userId = userId;
+    public ProjectMemberId(UUID projectId, UUID userId) {
         this.projectId = projectId;
+        this.userId = userId;
     }
 
-    public Long getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 

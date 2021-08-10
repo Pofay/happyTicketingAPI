@@ -1,9 +1,8 @@
 {
-    "java.test.config": {
-        "workingDirectory": "${workspaceFolder}",
-        "args": [
-            "-P",
-            "test"
-        ]
-    }
+    "java.test.config": [
+        {
+            "workingDirectory": "${workspaceFolder}",
+            "args": ["-D", "spring.profiles.active=test"]
+        }
+    ]
 }

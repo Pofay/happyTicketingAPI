@@ -1,22 +1,24 @@
 package com.cituojt.happyTicketingApi.responses.projects;
 
+import java.util.UUID;
+
 public class UserJSON {
 
-    private Long id;
+    private UUID id;
     private String email;
-    private Long projectId;
+    private UUID projectId;
 
-    public UserJSON(Long id, String email, Long projectId) {
+    public UserJSON(UUID id, String email, UUID projectId) {
         this.setId(id);
         this.setEmail(email);
         this.setProjectId(projectId);
     }
 
-    private void setProjectId(Long projectId) {
+    private void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
@@ -28,11 +30,11 @@ public class UserJSON {
         this.email = email;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 }
