@@ -78,7 +78,7 @@ public class ProjectMember {
         this.id = id;
     }
 
-    public void setProjectMemberId(Long projectId, UUID userId) {
+    public void setProjectMemberId(UUID projectId, UUID userId) {
         this.id = new ProjectMemberId(projectId, userId);
     }
 

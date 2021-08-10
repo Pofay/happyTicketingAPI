@@ -17,6 +17,6 @@ public interface ProjectRepository extends CrudRepository<Project, ProjectMember
     public Iterable<Project> getProjectsForUser(@Param("userId") UUID userId);
 
     @Query(value = "SELECT * from project p where p.project_id = :projectId", nativeQuery = true)
-    public Optional<Project> findById(@Param("projectId") Long projectId);
+    public Optional<Project> findById(@Param("projectId") UUID projectId);
 
 }

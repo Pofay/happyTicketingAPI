@@ -11,7 +11,8 @@ import javax.persistence.Embeddable;
 public class ProjectMemberId implements Serializable {
 
     @Column(name = "project_project_id")
-    private Long projectId;
+    @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
+    private UUID projectId;
 
     @Column(name = "user_user_id")
     @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
@@ -20,16 +21,16 @@ public class ProjectMemberId implements Serializable {
     public ProjectMemberId() {
     }
 
-    public ProjectMemberId(Long projectId, UUID userId) {
-        this.userId = userId;
+    public ProjectMemberId(UUID projectId, UUID userId) {
         this.projectId = projectId;
+        this.userId = userId;
     }
 
     public UUID getUserId() {
         return userId;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 

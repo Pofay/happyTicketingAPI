@@ -1,9 +1,11 @@
 package com.cituojt.happyTicketingApi.responses.projects;
 
+import java.util.UUID;
+
 public class DeletedTaskJSON {
 
     private String taskId;
-    private Long projectId;
+    private UUID projectId;
 
     public DeletedTaskJSON() {
 
@@ -17,15 +19,15 @@ public class DeletedTaskJSON {
         this.taskId = id;
     }
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public DeletedTaskJSON(String taskId, Long projectId) {
+    public DeletedTaskJSON(String taskId, UUID projectId) {
         this.setTaskId(taskId);
         this.setProjectId(projectId);
     }

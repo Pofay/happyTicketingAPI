@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -30,6 +32,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class HappyTicketingApiApplicationTests {
 
     @Autowired
@@ -96,7 +99,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
-        var savedProject = projectRepo.save(new Project("Customer Satisfaction", UUID.randomUUID()));
+        var savedProject = projectRepo.save(new Project(UUID.randomUUID(), "Customer Satisfaction", UUID.randomUUID()));
         var savedUser = userRepo
                 .save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
@@ -113,8 +116,9 @@ public class HappyTicketingApiApplicationTests {
     @Test
     public void created_projects_contains_members_tasks_name_and_channelName() throws Exception {
         UUID channelId = UUID.randomUUID();
+        var projectId = UUID.randomUUID();
         String projectName = "Hotel Management";
-        var savedProject = projectRepo.save(new Project(projectName, channelId));
+        var savedProject = projectRepo.save(new Project(projectId, projectName, channelId));
         var savedUser = userRepo
                 .save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
@@ -122,12 +126,12 @@ public class HappyTicketingApiApplicationTests {
 
         projectRepo.save(savedProject);
 
-        int expectedId = Integer.parseInt(savedProject.getId().toString());
         String channelName = String.format("%s@%s", channelId, projectName.replace(' ', '-'));
 
-        mvc.perform(get("/api/v1/projects/" + savedProject.getId()).header("Authorization", this.bearerToken))
-                .andExpect(jsonPath("$.name", equalTo(savedProject.getName())))
-                .andExpect(jsonPath("$.id", equalTo(expectedId))).andExpect(jsonPath("$.tasks", iterableWithSize(0)))
+        mvc.perform(get("/api/v1/projects/" + projectId.toString()).header("Authorization", this.bearerToken))
+                .andDo(print()).andExpect(jsonPath("$.name", equalTo(savedProject.getName())))
+                .andExpect(jsonPath("$.id", equalTo(projectId.toString())))
+                .andExpect(jsonPath("$.tasks", iterableWithSize(0)))
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", equalTo(channelName)))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(savedUser.getEmail())));
@@ -136,10 +140,8 @@ public class HappyTicketingApiApplicationTests {
     @Test
     public void can_create_a_project_through_post() throws Exception {
         String projectName = "ProjectM";
-        var savedUser = userRepo
-                .save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
-
-        int userId = Integer.parseInt(savedUser.getId().toString());
+        var userId = UUID.randomUUID();
+        var savedUser = userRepo.save(new User(userId, "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
         JSONObject payload = new JSONObject();
         payload.put("name", projectName);
@@ -151,7 +153,7 @@ public class HappyTicketingApiApplicationTests {
                 .andExpect(jsonPath("$.members", iterableWithSize(1)))
                 .andExpect(jsonPath("$.channelName", is(notNullValue())))
                 .andExpect(jsonPath("$.members[:1].email", hasItem(savedUser.getEmail())))
-                .andExpect(jsonPath("$.members[:1].id", hasItem(userId)));
+                .andExpect(jsonPath("$.members[:1].id", hasItem(userId.toString())));
     }
 
     @Test
@@ -169,7 +171,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void adding_task_is_through_posting_to_specific_project() throws Exception {
-        var initialProject = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var initialProject = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
         User u = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         initialProject.addMember(u, "OWNER");
         var p = projectRepo.save(initialProject);
@@ -183,19 +185,20 @@ public class HappyTicketingApiApplicationTests {
         payload.put("status", status);
         payload.put("estimatedTime", estimatedTime);
 
-        mvc.perform(post("/api/v1/projects/" + p.getId() + "/tasks").header("Authorization", this.bearerToken)
-                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isCreated())
-                .andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
+        mvc.perform(
+                post("/api/v1/projects/" + p.getId().toString() + "/tasks").header("Authorization", this.bearerToken)
+                        .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.tasks[:1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.tasks[:1].name", hasItem(taskName)))
                 .andExpect(jsonPath("$.tasks[:1].status", hasItem(status)))
                 .andExpect(jsonPath("$.tasks[:1].estimatedTime", hasItem(estimatedTime)))
-                .andExpect(jsonPath("$.tasks[:1].projectId", hasItem(p.getId().intValue())))
+                .andExpect(jsonPath("$.tasks[:1].projectId", hasItem(p.getId().toString())))
                 .andExpect(jsonPath("$.tasks[:1].assignedTo", hasItem(u.getEmail())));
     }
 
     @Test
     public void registered_emails_can_be_added_to_project_members() throws Exception {
-        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
         var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         var u2 = userRepo.save(new User(UUID.randomUUID(), "pofire@example.com", "auth0|123456"));
         userRepo.saveAll(Arrays.asList(u1, u2));
@@ -212,7 +215,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void nonregistered_emails_are_not_allowed() throws Exception {
-        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
         var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         userRepo.save(u1);
         p.addMember(u1, "OWNER");
@@ -221,14 +224,16 @@ public class HappyTicketingApiApplicationTests {
         JSONObject payload = new JSONObject();
         payload.put("memberEmail", "notExisting@example.com");
 
-        mvc.perform(post("/api/v1/projects/" + p.getId() + "/members").header("Authorization", this.bearerToken)
-                .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isForbidden())
+        mvc.perform(
+                post("/api/v1/projects/" + p.getId().toString() + "/members").header("Authorization", this.bearerToken)
+                        .contentType(MediaType.APPLICATION_JSON).content(payload.toString()))
+                .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.error", is(equalTo("email is not yet registered to system."))));
     }
 
     @Test
     public void updating_a_task_requires_all_fields() throws Exception {
-        var p = projectRepo.save(new Project("Hotel Management", UUID.randomUUID()));
+        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
         var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         var u2 = userRepo.save(new User(UUID.randomUUID(), "pofire@example.com", "auth0|1234"));
         Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT", 4);
@@ -246,7 +251,7 @@ public class HappyTicketingApiApplicationTests {
 
         String id = t.getId();
 
-        mvc.perform(put("/api/v1/projects/" + p.getId() + "/tasks").header("Authorization", this.bearerToken)
+        mvc.perform(put("/api/v1/projects/" + p.getId().toString() + "/tasks").header("Authorization", this.bearerToken)
                 .contentType(MediaType.APPLICATION_JSON).content(payload.toString())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(id))).andExpect(jsonPath("$.name", is(t.getName())))
                 .andExpect(jsonPath("$.status", is(t.getStatus()))).andExpect(jsonPath("$.estimatedTime", is(3)))
