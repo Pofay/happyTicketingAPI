@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.cituojt.happyTicketingApi.entities.ProjectMember;
-import com.cituojt.happyTicketingApi.entities.Task;
+import com.cituojt.happyTicketingApi.entities.ProjectMemberEntity;
+import com.cituojt.happyTicketingApi.entities.TaskEntity;
 
 public class ProjectDetailsJSON {
 
@@ -15,7 +15,8 @@ public class ProjectDetailsJSON {
     private Set<TaskJSON> tasks;
     private String channelName;
 
-    public ProjectDetailsJSON(UUID id, String name, Set<ProjectMember> members, Set<Task> tasks, String channelName) {
+    public ProjectDetailsJSON(UUID id, String name, Set<ProjectMemberEntity> members, Set<TaskEntity> tasks,
+            String channelName) {
         this.setId(id);
         this.setName(name);
         this.setChannelName(channelName);
@@ -31,18 +32,18 @@ public class ProjectDetailsJSON {
         return channelName;
     }
 
-    private Set<UserJSON> processMembers(Set<ProjectMember> members) {
+    private Set<UserJSON> processMembers(Set<ProjectMemberEntity> members) {
         Set<UserJSON> membersJSON = new HashSet<>();
-        for (ProjectMember m : members) {
+        for (ProjectMemberEntity m : members) {
             UserJSON userJSON = new UserJSON(m.getUser().getId(), m.getUser().getEmail(), this.id);
             membersJSON.add(userJSON);
         }
         return membersJSON;
     }
 
-    private Set<TaskJSON> processTasks(Set<Task> tasks) {
+    private Set<TaskJSON> processTasks(Set<TaskEntity> tasks) {
         Set<TaskJSON> tasksJSON = new HashSet<>();
-        for (Task t : tasks) {
+        for (TaskEntity t : tasks) {
             TaskJSON taskJSON = new TaskJSON(t.getId(), this.id, t.getName(), t.getAssignedTo(), t.getStatus(),
                     t.getEstimatedTime());
             tasksJSON.add(taskJSON);
