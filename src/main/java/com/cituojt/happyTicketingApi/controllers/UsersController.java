@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.cituojt.happyTicketingApi.entities.User;
+import com.cituojt.happyTicketingApi.entities.UserEntity;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.requests.users.CreateUserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class UsersController {
     @PostMapping(value = "/api/v1/users", produces = "application/json")
     public ResponseEntity createUser(@RequestBody CreateUserRequest body, HttpServletRequest req,
             HttpServletResponse res) throws JSONException {
-        User u = new User(UUID.randomUUID(), body.getEmail(), body.getUserId());
+        UserEntity u = new UserEntity(UUID.randomUUID(), body.getEmail(), body.getUserId());
 
         userRepo.save(u);
 
