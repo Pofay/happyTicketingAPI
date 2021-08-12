@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "project_user")
-public class User {
+public class UserEntity {
 
     @Id
     @org.hibernate.annotations.Type(type = "org.hibernate.type.PostgresUUIDType")
@@ -25,12 +25,12 @@ public class User {
     private String email;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user")
-    private Set<ProjectMember> memberShips;
+    private Set<ProjectMemberEntity> memberShips;
 
-    public User() {
+    public UserEntity() {
     }
 
-    public User(UUID id, String email, String oAuthId) {
+    public UserEntity(UUID id, String email, String oAuthId) {
         this.id = id;
         this.oauthId = oAuthId;
         this.email = email;
@@ -69,11 +69,11 @@ public class User {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        User other = (User) obj;
+        UserEntity other = (UserEntity) obj;
         return Objects.equals(id, other.id);
     }
 
-    public Iterable<ProjectMember> getMemberships() {
+    public Iterable<ProjectMemberEntity> getMemberships() {
         return memberShips;
     }
 

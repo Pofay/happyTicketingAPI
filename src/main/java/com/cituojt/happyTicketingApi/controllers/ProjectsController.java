@@ -2,9 +2,9 @@ package com.cituojt.happyTicketingApi.controllers;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.cituojt.happyTicketingApi.entities.Project;
-import com.cituojt.happyTicketingApi.entities.Task;
-import com.cituojt.happyTicketingApi.entities.User;
+import com.cituojt.happyTicketingApi.entities.ProjectEntity;
+import com.cituojt.happyTicketingApi.entities.TaskEntity;
+import com.cituojt.happyTicketingApi.entities.UserEntity;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import com.cituojt.happyTicketingApi.requests.AddMemberRequest;
@@ -52,11 +52,11 @@ public class ProjectsController {
     public ResponseEntity getProjectsForUser(HttpServletRequest req, HttpServletResponse res) {
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
+        Optional<UserEntity> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
-            User u = userOrNull.get();
-            Iterable<Project> projects = projectRepo.getProjectsForUser(u.getId());
+            UserEntity u = userOrNull.get();
+            Iterable<ProjectEntity> projects = projectRepo.getProjectsForUser(u.getId());
             return ResponseEntity.ok(mapProjectsToJson(projects));
         } else {
             JSONObject errorPayload = new JSONObject();
@@ -69,7 +69,7 @@ public class ProjectsController {
     public ResponseEntity getProjectForUserById(@PathVariable("id") UUID id, HttpServletRequest req,
             HttpServletResponse res) throws Exception {
 
-        Optional<Project> projectOrNull = projectRepo.findById(id);
+        Optional<ProjectEntity> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
             return ResponseMapper.mapProjectToJson(projectOrNull.get(), 200);
@@ -89,11 +89,11 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
+        Optional<UserEntity> userOrNull = userRepo.findByOauthId(oauthId);
 
         if (userOrNull.isPresent()) {
-            User u = userOrNull.get();
-            var p = projectRepo.save(new Project(UUID.randomUUID(), body.getName(), UUID.randomUUID()));
+            UserEntity u = userOrNull.get();
+            var p = projectRepo.save(new ProjectEntity(UUID.randomUUID(), body.getName(), UUID.randomUUID()));
             p.addMember(u, "OWNER");
             projectRepo.save(p);
 
@@ -111,13 +111,13 @@ public class ProjectsController {
 
         String oauthId = getOauthIdFromRequest(req);
 
-        Optional<User> userOrNull = userRepo.findByOauthId(oauthId);
-        Optional<Project> projectOrNull = projectRepo.findById(id);
+        Optional<UserEntity> userOrNull = userRepo.findByOauthId(oauthId);
+        Optional<ProjectEntity> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent() && userOrNull.isPresent()) {
-            User u = userOrNull.get();
-            Project p = projectOrNull.get();
-            Task t = new Task(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus(),
+            UserEntity u = userOrNull.get();
+            ProjectEntity p = projectOrNull.get();
+            TaskEntity t = new TaskEntity(UUID.randomUUID(), body.getName(), u.getEmail(), body.getStatus(),
                     body.getEstimatedTime());
 
             p.addTask(t);
@@ -139,13 +139,13 @@ public class ProjectsController {
     public ResponseEntity addMemberToProject(@RequestBody AddMemberRequest body, @PathVariable("id") UUID id,
             HttpServletRequest req, HttpServletResponse res) {
 
-        Optional<Project> projectOrNull = projectRepo.findById(id);
+        Optional<ProjectEntity> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
-            Project p = projectOrNull.get();
-            Optional<User> userOrNull = userRepo.findByEmail(body.getMemberEmail());
+            ProjectEntity p = projectOrNull.get();
+            Optional<UserEntity> userOrNull = userRepo.findByEmail(body.getMemberEmail());
             if (userOrNull.isPresent()) {
-                User u = userOrNull.get();
+                UserEntity u = userOrNull.get();
                 p.addMember(u, "MEMBER");
                 projectRepo.save(p);
 
@@ -167,15 +167,15 @@ public class ProjectsController {
     @PutMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
     public ResponseEntity updateTask(@PathVariable("id") UUID id, @RequestBody UpdateTaskRequest body,
             HttpServletRequest req, HttpServletResponse res) {
-        Optional<Project> projectOrNull = projectRepo.findById(id);
+        Optional<ProjectEntity> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
-            Project p = projectOrNull.get();
+            ProjectEntity p = projectOrNull.get();
 
-            Optional<Task> taskOrNull = p.getTaskbyTaskId(body.getId());
+            Optional<TaskEntity> taskOrNull = p.getTaskbyTaskId(body.getId());
             // check if task is in the project
             if (taskOrNull.isPresent()) {
-                Task t = taskOrNull.get();
+                TaskEntity t = taskOrNull.get();
                 t.setName(body.getName());
                 t.setAssignedTo(body.getAssignedTo());
                 t.setStatus(body.getStatus());
@@ -194,14 +194,14 @@ public class ProjectsController {
     @DeleteMapping(value = "/api/v1/projects/{id}/tasks", produces = "application/json")
     public ResponseEntity deleteTask(@PathVariable("id") UUID id, @RequestBody DeleteTaskRequest body) {
 
-        Optional<Project> projectOrNull = projectRepo.findById(id);
+        Optional<ProjectEntity> projectOrNull = projectRepo.findById(id);
 
         if (projectOrNull.isPresent()) {
-            Project p = projectOrNull.get();
-            Optional<Task> taskOrNull = p.getTaskbyTaskId(body.getId());
+            ProjectEntity p = projectOrNull.get();
+            Optional<TaskEntity> taskOrNull = p.getTaskbyTaskId(body.getId());
 
             if (taskOrNull.isPresent()) {
-                Task t = taskOrNull.get();
+                TaskEntity t = taskOrNull.get();
                 p.deleteTask(t);
                 projectRepo.save(p);
 
@@ -218,9 +218,9 @@ public class ProjectsController {
         }
     }
 
-    private IndexResponse mapProjectsToJson(Iterable<Project> projects) {
+    private IndexResponse mapProjectsToJson(Iterable<ProjectEntity> projects) {
         List<ProjectDetailsJSON> jsonResponse = new ArrayList<>();
-        for (Project p : projects) {
+        for (ProjectEntity p : projects) {
             ProjectDetailsJSON json = new ProjectDetailsJSON(p.getId(), p.getName(), p.getMembers(), p.getTasks(),
                     p.getChannelName());
             jsonResponse.add(json);

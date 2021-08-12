@@ -10,7 +10,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "task")
-public class Task {
+public class TaskEntity {
 
     @Id
     @Column(name = "task_id", nullable = false)
@@ -18,7 +18,7 @@ public class Task {
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    private ProjectEntity project;
 
     @Column(name = "task_name")
     private String name;
@@ -30,11 +30,11 @@ public class Task {
 
     private Integer estimatedTime;
 
-    public Task() {
+    public TaskEntity() {
 
     }
 
-    public Task(UUID id, String name, String assignedTo, String status, Integer estimatedTime) {
+    public TaskEntity(UUID id, String name, String assignedTo, String status, Integer estimatedTime) {
         this.id = id.toString();
         this.name = name;
         this.assignedTo = assignedTo;
@@ -82,11 +82,11 @@ public class Task {
         this.name = name;
     }
 
-    public void setProject(Project p) {
+    public void setProject(ProjectEntity p) {
         this.project = p;
     }
 
-    public Project getProject() {
+    public ProjectEntity getProject() {
         return project;
     }
 }

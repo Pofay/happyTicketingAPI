@@ -17,7 +17,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "project")
-public class Project {
+public class ProjectEntity {
 
     @Id
     @Column(name = "project_id")
@@ -31,15 +31,15 @@ public class Project {
     private String channelId;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectMember> members = new HashSet<>();
+    private Set<ProjectMemberEntity> members = new HashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Task> tasks = new HashSet<>();
+    private Set<TaskEntity> tasks = new HashSet<>();
 
-    public Project() {
+    public ProjectEntity() {
     }
 
-    public Project(UUID id, String name, UUID channelId) {
+    public ProjectEntity(UUID id, String name, UUID channelId) {
         this.id = id;
         this.name = name.replace(' ', '-').replace(':', ';');
         this.channelId = channelId.toString();
@@ -61,26 +61,26 @@ public class Project {
         this.id = id;
     }
 
-    public Set<ProjectMember> getMembers() {
+    public Set<ProjectMemberEntity> getMembers() {
         return members;
     }
 
-    public Set<Task> getTasks() {
+    public Set<TaskEntity> getTasks() {
         return tasks;
     }
 
-    public void addMember(User user, String role) {
-        ProjectMember m = new ProjectMember(user, this, role);
+    public void addMember(UserEntity user, String role) {
+        ProjectMemberEntity m = new ProjectMemberEntity(user, this, role);
         members.add(m);
     }
 
     public void addTask(String name, String email, String status, Integer estimatedTime) {
-        Task t = new Task(UUID.randomUUID(), name, email, status, estimatedTime);
+        TaskEntity t = new TaskEntity(UUID.randomUUID(), name, email, status, estimatedTime);
         tasks.add(t);
         t.setProject(this);
     }
 
-    public void addTask(Task t) {
+    public void addTask(TaskEntity t) {
         tasks.add(t);
         t.setProject(this);
     }
@@ -99,8 +99,8 @@ public class Project {
     }
 
     // get Task by ID
-    public Optional<Task> getTaskbyTaskId(String id) {
-        for (Task k : tasks) {
+    public Optional<TaskEntity> getTaskbyTaskId(String id) {
+        for (TaskEntity k : tasks) {
             if (k.getId().equals(id))
                 return Optional.of(k);
         }
@@ -120,11 +120,11 @@ public class Project {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Project other = (Project) obj;
+        ProjectEntity other = (ProjectEntity) obj;
         return Objects.equals(id, other.id);
     }
 
-    public void deleteTask(Task t) {
+    public void deleteTask(TaskEntity t) {
         tasks.remove(t);
         t.setProject(null);
     }

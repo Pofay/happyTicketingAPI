@@ -1,8 +1,8 @@
 package com.cituojt.happyTicketingApi.endToEnd;
 
-import com.cituojt.happyTicketingApi.entities.Project;
-import com.cituojt.happyTicketingApi.entities.Task;
-import com.cituojt.happyTicketingApi.entities.User;
+import com.cituojt.happyTicketingApi.entities.ProjectEntity;
+import com.cituojt.happyTicketingApi.entities.TaskEntity;
+import com.cituojt.happyTicketingApi.entities.UserEntity;
 import com.cituojt.happyTicketingApi.repositories.ProjectRepository;
 import com.cituojt.happyTicketingApi.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -82,7 +82,7 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void authenticated_user_with_user_creds_is_allowed_access_to_projects() throws Exception {
-        User u = new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
+        UserEntity u = new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1");
 
         userRepo.save(u);
 
@@ -99,9 +99,10 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void user_gets_only_projects_where_he_is_member_regardless_of_role() throws Exception {
-        var savedProject = projectRepo.save(new Project(UUID.randomUUID(), "Customer Satisfaction", UUID.randomUUID()));
+        var savedProject = projectRepo
+                .save(new ProjectEntity(UUID.randomUUID(), "Customer Satisfaction", UUID.randomUUID()));
         var savedUser = userRepo
-                .save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
         savedProject.addMember(savedUser, "OWNER");
         projectRepo.save(savedProject);
@@ -118,9 +119,9 @@ public class HappyTicketingApiApplicationTests {
         UUID channelId = UUID.randomUUID();
         var projectId = UUID.randomUUID();
         String projectName = "Hotel Management";
-        var savedProject = projectRepo.save(new Project(projectId, projectName, channelId));
+        var savedProject = projectRepo.save(new ProjectEntity(projectId, projectName, channelId));
         var savedUser = userRepo
-                .save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
         savedProject.addMember(savedUser, "OWNER");
 
@@ -141,7 +142,7 @@ public class HappyTicketingApiApplicationTests {
     public void can_create_a_project_through_post() throws Exception {
         String projectName = "ProjectM";
         var userId = UUID.randomUUID();
-        var savedUser = userRepo.save(new User(userId, "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var savedUser = userRepo.save(new UserEntity(userId, "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
 
         JSONObject payload = new JSONObject();
         payload.put("name", projectName);
@@ -171,8 +172,10 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void adding_task_is_through_posting_to_specific_project() throws Exception {
-        var initialProject = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
-        User u = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var initialProject = projectRepo
+                .save(new ProjectEntity(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
+        UserEntity u = userRepo
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         initialProject.addMember(u, "OWNER");
         var p = projectRepo.save(initialProject);
 
@@ -198,9 +201,10 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void registered_emails_can_be_added_to_project_members() throws Exception {
-        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
-        var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
-        var u2 = userRepo.save(new User(UUID.randomUUID(), "pofire@example.com", "auth0|123456"));
+        var p = projectRepo.save(new ProjectEntity(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var u2 = userRepo.save(new UserEntity(UUID.randomUUID(), "pofire@example.com", "auth0|123456"));
         userRepo.saveAll(Arrays.asList(u1, u2));
         p.addMember(u1, "OWNER");
         p = projectRepo.save(p);
@@ -215,8 +219,9 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void nonregistered_emails_are_not_allowed() throws Exception {
-        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
-        var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var p = projectRepo.save(new ProjectEntity(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
         userRepo.save(u1);
         p.addMember(u1, "OWNER");
         p = projectRepo.save(p);
@@ -233,10 +238,11 @@ public class HappyTicketingApiApplicationTests {
 
     @Test
     public void updating_a_task_requires_all_fields() throws Exception {
-        var p = projectRepo.save(new Project(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
-        var u1 = userRepo.save(new User(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
-        var u2 = userRepo.save(new User(UUID.randomUUID(), "pofire@example.com", "auth0|1234"));
-        Task t = new Task(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT", 4);
+        var p = projectRepo.save(new ProjectEntity(UUID.randomUUID(), "Hotel Management", UUID.randomUUID()));
+        var u1 = userRepo
+                .save(new UserEntity(UUID.randomUUID(), "pofay@example.com", "auth0|5d4185285fa52d0cfa094cc1"));
+        var u2 = userRepo.save(new UserEntity(UUID.randomUUID(), "pofire@example.com", "auth0|1234"));
+        TaskEntity t = new TaskEntity(UUID.randomUUID(), "Some Task", u1.getEmail(), "TO IMPLEMENT", 4);
         p.addMember(u1, "OWNER");
         p.addMember(u2, "MEMBER");
         p.addTask(t);

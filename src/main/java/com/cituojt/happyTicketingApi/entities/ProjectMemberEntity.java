@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity(name = "ProjectMember")
 @Table(name = "project_member")
-public class ProjectMember {
+public class ProjectMemberEntity {
 
     @EmbeddedId
     private ProjectMemberId id;
@@ -22,12 +22,12 @@ public class ProjectMember {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_user_id")
     @MapsId("user_id")
-    private User user;
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_project_id")
     @MapsId("project_id")
-    private Project project;
+    private ProjectEntity project;
 
     @Column(name = "member_role")
     private String role;
@@ -35,10 +35,10 @@ public class ProjectMember {
     @Column(name = "member_status")
     private String status;
 
-    public ProjectMember() {
+    public ProjectMemberEntity() {
     }
 
-    public ProjectMember(User u, Project p, String role) {
+    public ProjectMemberEntity(UserEntity u, ProjectEntity p, String role) {
         this.user = u;
         this.project = p;
         this.id = new ProjectMemberId(p.getId(), u.getId());
@@ -54,19 +54,19 @@ public class ProjectMember {
         this.status = "DISABLED";
     }
 
-    public User getUser() {
+    public UserEntity getUser() {
         return user;
     }
 
-    public void setUser(User u) {
+    public void setUser(UserEntity u) {
         this.user = u;
     }
 
-    public Project getProject() {
+    public ProjectEntity getProject() {
         return project;
     }
 
-    public void setProject(Project p) {
+    public void setProject(ProjectEntity p) {
         this.project = p;
     }
 
@@ -103,7 +103,7 @@ public class ProjectMember {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ProjectMember other = (ProjectMember) obj;
+        ProjectMemberEntity other = (ProjectMemberEntity) obj;
         return Objects.equals(id, other.id);
     }
 
